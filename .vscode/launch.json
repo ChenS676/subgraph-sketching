@@ -12,7 +12,7 @@
 			"program": "${file}",
 			"console": "integratedTerminal",
 			"justMyCode": false, 
-			"cwd": "/pfs/work7/workspace/scratch/cc7738-prefeature/subgraph-sketching/src",
+			"cwd": "/pfs/work7/workspace/scratch/cc7738-prefeature/subgraph-sketching",
 			"args": [
 				"--dataset_name",
 				"pubmed",
