@@ -7,8 +7,8 @@ from torch_geometric.datasets import Planetoid
 import torch_geometric.transforms as T
 from pdb import set_trace as bp
 # param
-from src.configs.config_load import cfg_data as cfg
-from src.configs.config_load import update_cfg
+from config_load import cfg_data as cfg
+from config_load import update_cfg
 # return cora dataset as pytorch geometric Data object together with 60/20/20 split, and list of cora IDs
 
 def get_cora_casestudy(SEED=0):

@@ -9,8 +9,8 @@ from sklearn.preprocessing import normalize
 import json
 import pandas as pd
 # param
-from src.configs.config_load import cfg_data as cfg
-from src.configs.config_load import update_cfg
+from config_load import cfg_data as cfg
+from config_load import update_cfg
 # return pubmed dataset as pytorch geometric Data object together with 60/20/20 split, and list of pubmed IDs
 
 
@@ -157,7 +157,7 @@ def get_raw_text_pubmed(cfg, use_text=False, seed=0):
 
 if __name__ == "__main__":
     cfg = update_cfg(cfg)
-    data, data_pubid = get_pubmed_casestudy(cfg.seed)
+    data, data_pubid = get_pubmed_casestudy(SEED=cfg.seed)
     data, text = get_raw_text_pubmed(cfg, use_text=True, seed=0)
     print(data)
     print(text)
