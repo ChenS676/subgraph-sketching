@@ -55,7 +55,7 @@ def update_cfg(cfg, args_str=None):
         args = parser.parse_args(args_str.split())
     else:
         # parse from command line
-        args = parser.parse_args([])
+        args = parser.parse_args()
     # Clone the original cfg
     cfg = cfg.clone()
 

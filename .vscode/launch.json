@@ -12,13 +12,17 @@
 			"program": "${file}",
 			"console": "integratedTerminal",
 			"justMyCode": false, 
+			"cwd":"${workspaceFolder}",
+			"env": {
+				"PYTHONPATH": "${cwd}"
+			},
 			"args": [
 				"--dataset_name",
 				"pubmed",
 				"--model",
 				"ELPH", 
 				"--use_text",	
-				"True",
+				"False",
 				"--wandb_group", 
 				"reconstruct",
 				"--wandb_tags",
