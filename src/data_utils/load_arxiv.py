@@ -35,7 +35,6 @@ def get_raw_text_arxiv(cfg, use_text=False, seed=0):
 
     raw_text = pd.read_csv(cfg.dataset.arxiv.abs_ti,
                            sep='\t', header=None, names=['paper id', 'title', 'abs'])
-
     # remove string paper id
     nodeidx2paperid['paper id'] = nodeidx2paperid['paper id'].astype(int)
     raw_text = raw_text.dropna()
