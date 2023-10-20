@@ -14,7 +14,7 @@ import torch
 from torch import tensor
 import scipy.sparse as ssp
 import numpy as np
-
+from scipy.sparse import csr_matrix
 from src.heuristics import AA, PPR, CN, RA
 
 
@@ -25,6 +25,7 @@ class HeuristicTests(unittest.TestCase):
         self.test_edges = tensor([[0, 1], [1, 2]]).t()
         self.num_nodes = 3
         self.neg_test_edges = tensor([[0, 1], [2, 0]]).t()
+        
         self.A = ssp.csr_matrix((self.edge_weight, (self.edge_index[:, 0], self.edge_index[:, 1])),
                                 shape=(self.num_nodes, self.num_nodes), dtype=float)
         # create a graph with 2 isomorphic nodes 2 & 3
@@ -47,6 +48,15 @@ class HeuristicTests(unittest.TestCase):
         num_nodes = 10
         self.A1 = ssp.csr_matrix((ew, (self.ei[0], self.ei[1])), shape=(num_nodes, num_nodes))
 
+    def AA2_setUp(self):
+        self.A = np.array([[0, 1 ,0 ,0 , 1], [1, 0 , 1 , 1 ,1], [0 , 1, 0 , 1 , 1], [0, 1, 1 , 0, 1], [1, 1 , 1 , 1 , 0 ]])
+        row, col = self.A.nonzero()
+        self.num_nodes = self.A.shape[0]
+        self.edge_index =  tensor([np.array(row), np.array(col)]).t()
+        self.edge_weight = torch.ones(self.edge_index.size(0), dtype=torch.int)
+        self.A = ssp.csr_matrix((self.edge_weight, (self.edge_index[:, 0], self.edge_index[:, 1])),
+                                shape=(self.num_nodes, self.num_nodes), dtype=float)
+
     def test_CN(self):
         train_scores, edge_index = CN(self.A, self.edge_index)
         self.assertTrue(np.array_equal(train_scores, np.array([0, 1, 0, 0])))
@@ -55,7 +65,16 @@ class HeuristicTests(unittest.TestCase):
         pos_scores, edge_index = CN(self.A, self.test_edges)
         self.assertTrue(np.array_equal(pos_scores, np.array([0, 0])))
 
-    def test_AA(self):
+    def test_AA1(self):
+        train_scores, edge_index = AA(self.A, self.edge_index)
+        print(train_scores)
+        self.assertTrue(np.allclose(train_scores, np.array([0, 1 / math.log(2), 0, 0])))
+        neg_scores, edge_index = AA(self.A, self.neg_test_edges)
+        self.assertTrue(np.allclose(neg_scores, np.array([1 / math.log(2), 0])))
+        pos_scores, edge_index = AA(self.A, self.test_edges)
+        self.assertTrue(np.allclose(pos_scores, np.array([0, 0])))
+
+    def test_AA2(self):
         train_scores, edge_index = AA(self.A, self.edge_index)
         print(train_scores)
         self.assertTrue(np.allclose(train_scores, np.array([0, 1 / math.log(2), 0, 0])))
@@ -85,3 +104,18 @@ class HeuristicTests(unittest.TestCase):
         ppr_test_scores, edge_index = PPR(A, self.iso_test_edges)
         print(ppr_test_scores)
         self.assertTrue(ppr_test_scores[0] == ppr_test_scores[1])
+
+    def test_PPR(self):
+        train_scores, edge_index = PPR(self.A, self.edge_index)
+        print(train_scores)
+        self.assertTrue(np.allclose(train_scores, np.array([0, 0.5, 0, 0])))
+        neg_scores, edge_index = PPR(self.A, self.neg_test_edges)
+        self.assertTrue(np.allclose(neg_scores, np.array([0.5, 0])))
+        pos_scores, edge_index = PPR(self.A, self.test_edges)
+        self.assertTrue(np.allclose(pos_scores, np.array([0, 0])))
+
+if __name__ == '__main__':
+    test = HeuristicTests()
+    test.setUp()
+    # test.test_AA1()
+    test.test_PPR()

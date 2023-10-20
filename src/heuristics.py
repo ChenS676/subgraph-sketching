@@ -37,7 +37,9 @@ def AA(A, edge_index, batch_size=100000):
     """
     multiplier = 1 / np.log(A.sum(axis=0))
     multiplier[np.isinf(multiplier)] = 0
+    # point-wise multiplication of edge weights and edge index 
     A_ = A.multiply(multiplier).tocsr()
+    # common neighbours 
     link_loader = DataLoader(range(edge_index.size(0)), batch_size)
     scores = []
     for ind in link_loader:
@@ -96,7 +98,7 @@ def PPR(A, edge_index):
         personalize[src] = 1
         # get the ppr for the current source node
         ppr = pagerank_power(A, p=0.85, personalize=personalize, tol=1e-7)
-        j = i
+        j = i 
         # get ppr for all links that start at this source to save recalculating the ppr score
         while edge_reindex[0, j] == src:
             j += 1
@@ -111,3 +113,4 @@ def PPR(A, edge_index):
     scores = np.concatenate(scores, 0)
     print(f'evaluated PPR for {len(scores)} edges')
     return torch.FloatTensor(scores), edge_reindex
+
