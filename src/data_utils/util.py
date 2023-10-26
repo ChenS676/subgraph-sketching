@@ -37,7 +37,7 @@ def get_graph_config(config_yaml,show=False):
     if load_config['iso_test_edges'] == 'None':
         output_config['iso_test_edges'] = None
     else:
-        output_config['iso_test_edges'] = load_config['iso_test_edges']
+        output_config['iso_test_edges'] = torch.tensor(load_config['iso_test_edges']).t()
     del load_config
     if show:
         for k,v in output_config.items():

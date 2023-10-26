@@ -49,6 +49,8 @@ class HeuristicTests(unittest.TestCase):
         heu.test()
         if np.allclose(heu.scores, test_truth):
             print(f'Calcualted {test_name} is the same with ground truth', end='\n\n')
+        else:
+            print(f'Failed, calculated values != ground truth', end='\n\n')
 
     def regular_test(self):
         print(f'Regular test on algorithm: {self.algorithm}:', end = '\n\n')
@@ -78,18 +80,13 @@ class HeuristicTests(unittest.TestCase):
         """
         test on isomorphic nodes in the same graph
         """
-        print()
-        print(f'test iso:')
-        
-        AA_heu = HeuristicModels('AA', self.A, self.neg_test_edges)
-        AA_heu.test()
-        print(AA_heu.scores)
-        self.assertTrue(AA_heu.scores[0] == AA_heu.scores[1])
-
-        CN_heu = HeuristicModels('CN', self.A, self.neg_test_edges)
-        CN_heu.test()
-        print(CN_heu.scores)
-        self.assertTrue(CN_heu.scores[0] == CN_heu.scores[1])
+        assert not self.iso_test_edges is None, 'There are no isomorphic nodes in current graph'
+        print(f'Test isomorphic nodes with algorithm {self.algorithm}:')
+        iso_heu = HeuristicModels(self.algorithm, self.A, self.iso_test_edges)
+        iso_heu.test()
+        print(f'node: {self.iso_test_edges[0]}, values {iso_heu.scores[0]}')
+        print(f'node: {self.iso_test_edges[1]}, values {iso_heu.scores[1]}')
+        print('Vales are {}'.format('same' if iso_heu.scores[0] == iso_heu.scores[1] else 'not same'))
 
     # def test_PPR(self):
     #     train_scores, edge_index = PPR(self.A, self.edge_index)
@@ -103,10 +100,8 @@ class HeuristicTests(unittest.TestCase):
 def get_args():
 
     parser = argparse.ArgumentParser(description='Heuristic graph algorithms')
-    parser.add_argument('--config_yaml',type=str,default='Graph2_AA.yaml',
+    parser.add_argument('--config_yaml',type=str,default='GraphIso_CN.yaml',
                         help='yaml file containing configuration of an algorithm example')
-    parser.add_argument('--regular_test',type=int,default=1,
-                        help='whether test regular scores or not, including train scores, positive test, negative test')
     args = parser.parse_args()
     return args
 
@@ -115,7 +110,5 @@ if __name__ == '__main__':
     args = get_args()
     config_dict = get_graph_config(args.config_yaml)
     HT = HeuristicTests(config_dict)
-    if args.regular_test:
-        HT.regular_test()
-    if args.config_yaml.split('_')[0].endswith('Iso'):
-        HT.iso_test()
+    HT.regular_test()
+    HT.iso_test()
