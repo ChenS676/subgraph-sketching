@@ -1,0 +1,20 @@
+# pylint documentation:
+# https://pylint.pycqa.org/en/latest/index.html
+
+[MESSAGES CONTROL]
+# not to check whether code corresponds to following standard:
+# C0103: naming style
+# C0111: missing-docstring
+# C0301: line too long
+# W1514: unspecified-encoding
+# W1309: f-string-without-interpolation
+# C0209: consider-using-f-string
+# C0303: trailing-whitespace
+# C0304: missing-final-newline
+# W0621:redefined-outer-name
+disable = C0103,C0111,C0301,W1514,W1309,C0209,C0303,C0304,W0621
+
+[TYPECHECK]
+# List of members which are set dynamically and missed by Pylint inference
+# system, and so shouldn't trigger E1101 when accessed.
+generated-members=numpy.*, torch.*, tensorflow.*, tensorflow.keras.*

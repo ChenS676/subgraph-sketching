@@ -23,6 +23,9 @@ class HeuristicModels():
             self.AA()
         if self.model == 'rec_AA':
             self.rec_AA()
+        if self.model == 'RA':
+            self.RA()
+
 
     def CN(self, batch_size=100000):
         """
@@ -88,7 +91,7 @@ class HeuristicModels():
         print(f'evaluated Adamic Adar for {len(scores)} edges')
 
 
-    def RA(A, edge_index, batch_size=100000):
+    def RA(self, batch_size=100000):
         """
         Resource Allocation https://arxiv.org/pdf/0901.0553.pdf
         :param A: scipy sparse adjacency matrix
@@ -96,18 +99,18 @@ class HeuristicModels():
         :param batch_size: int
         :return: FloatTensor [edges] of scores, pyg edge_index
         """
-        multiplier = 1 / A.sum(axis=0)
+        multiplier = 1 / self.A.sum(axis=0)
         multiplier[np.isinf(multiplier)] = 0
-        A_ = A.multiply(multiplier).tocsr()
-        link_loader = DataLoader(range(edge_index.size(0)), batch_size)
+        A_ = self.A.multiply(multiplier).tocsr()
+        link_loader = DataLoader(range(self.edge_index.size(0)), batch_size)
         scores = []
-        for ind in tqdm(link_loader):
-            src, dst = edge_index[ind, 0], edge_index[ind, 1]
-            cur_scores = np.array(np.sum(A[src].multiply(A_[dst]), 1)).flatten()
+        for ind in link_loader:
+            src, dst = self.edge_index[ind, 0], self.edge_index[ind, 1]
+            cur_scores = np.array(np.sum(self.A[src].multiply(A_[dst]), 1)).flatten()
             scores.append(cur_scores)
         scores = np.concatenate(scores, 0)
+        self.scores = torch.FloatTensor(scores)
         print(f'evaluated Resource Allocation for {len(scores)} edges')
-        return torch.FloatTensor(scores), edge_index
 
 
     def PPR(A, edge_index):

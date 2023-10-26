@@ -17,9 +17,6 @@ parent_dir = current_dir[:current_dir.rfind(os.path.sep)]
 sys.path.insert(0, parent_dir)
 
 import unittest
-
-import torch
-from torch import tensor
 import scipy.sparse as ssp
 import numpy as np
 from src.heuristics_new import HeuristicModels
@@ -47,6 +44,8 @@ class HeuristicTests(unittest.TestCase):
     def unit_test(self,test_name, test_truth, edge_index):
         heu = HeuristicModels(self.algorithm, self.A, edge_index)
         heu.test()
+        print(f'scores: {heu.scores}')
+        print(f'ground truth: {test_truth}')
         if np.allclose(heu.scores, test_truth):
             print(f'Calcualted {test_name} is the same with ground truth', end='\n\n')
         else:
@@ -67,26 +66,19 @@ class HeuristicTests(unittest.TestCase):
                        test_truth=self.neg_scores_target,
                        edge_index=self.neg_test_edges)
 
-    # def test_RA(self):
-    #     train_scores, edge_index = RA(self.A, self.edge_index)
-    #     print(train_scores)
-    #     self.assertTrue(np.allclose(train_scores, np.array([0, 1 / 2, 0, 0])))
-    #     neg_scores, edge_index = RA(self.A, self.neg_test_edges)
-    #     self.assertTrue(np.allclose(neg_scores, np.array([1 / 2, 0])))
-    #     pos_scores, edge_index = RA(self.A, self.test_edges)
-    #     self.assertTrue(np.allclose(pos_scores, np.array([0, 0])))
-
     def iso_test(self):
         """
         test on isomorphic nodes in the same graph
         """
-        assert not self.iso_test_edges is None, 'There are no isomorphic nodes in current graph'
-        print(f'Test isomorphic nodes with algorithm {self.algorithm}:')
-        iso_heu = HeuristicModels(self.algorithm, self.A, self.iso_test_edges)
-        iso_heu.test()
-        print(f'node: {self.iso_test_edges[0]}, values {iso_heu.scores[0]}')
-        print(f'node: {self.iso_test_edges[1]}, values {iso_heu.scores[1]}')
-        print('Vales are {}'.format('same' if iso_heu.scores[0] == iso_heu.scores[1] else 'not same'))
+        if self.iso_test_edges is None:
+            print('There are no isomorphic nodes in current graph')
+        else:
+            print(f'Test isomorphic nodes with algorithm {self.algorithm}:')
+            iso_heu = HeuristicModels(self.algorithm, self.A, self.iso_test_edges)
+            iso_heu.test()
+            print(f'node: {self.iso_test_edges[0]}, values {iso_heu.scores[0]}')
+            print(f'node: {self.iso_test_edges[1]}, values {iso_heu.scores[1]}')
+            print('Vales are {}'.format('same' if iso_heu.scores[0] == iso_heu.scores[1] else 'not same'))
 
     # def test_PPR(self):
     #     train_scores, edge_index = PPR(self.A, self.edge_index)
@@ -100,7 +92,7 @@ class HeuristicTests(unittest.TestCase):
 def get_args():
 
     parser = argparse.ArgumentParser(description='Heuristic graph algorithms')
-    parser.add_argument('--config_yaml',type=str,default='GraphIso_CN.yaml',
+    parser.add_argument('--config_yaml',type=str,default='GraphIso_RA.yaml',
                         help='yaml file containing configuration of an algorithm example')
     args = parser.parse_args()
     return args
