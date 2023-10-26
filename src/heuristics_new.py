@@ -12,10 +12,10 @@ class HeuristicModels():
     def __init__(self,model,A,edge_index):
 
         super(HeuristicModels, self).__init__()
+        self.model = model
         self.A = A
         self.edge_index = edge_index
-        self.model = model
-
+        
     def test(self):
         if self.model == 'CN':
             self.CN()
@@ -69,11 +69,7 @@ class HeuristicModels():
 
     def rec_AA(self, batch_size=100000):
         """
-        Adamic Adar
-        :param A: scipy sparse adjacency matrix
-        :param edge_index: pyg edge_index
-        :param batch_size: int
-        :return: FloatTensor [edges] of scores, pyg edge_index
+        which does the same with self.AA()
         """
         # degrees of each node
         multiplier = 1 / np.log(self.A.sum(axis=0))

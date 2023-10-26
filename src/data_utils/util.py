@@ -18,7 +18,8 @@ def extract_eval(lst):
 
 def get_graph_config(config_yaml,show=False):
     """
-    get pre-selected features for creation of dataset, including distance and angle features
+    get configurations for a specific example of graph algorithm
+    including graph structure, test nodes and truth
     """
     config_yaml = os.path.join('./test/graph_configs',config_yaml)
     output_config = {}
@@ -32,6 +33,11 @@ def get_graph_config(config_yaml,show=False):
     output_config['train_scores_target'] = np.array(extract_eval(load_config['train_scores_target']))
     output_config['pos_scores_target'] = np.array(extract_eval(load_config['pos_scores_target']))
     output_config['neg_scores_target'] = np.array(extract_eval(load_config['neg_scores_target']))
+    output_config['edge_weight'] = torch.ones(output_config['edge_index'].size(0), dtype=torch.int)
+    if load_config['iso_test_edges'] == 'None':
+        output_config['iso_test_edges'] = None
+    else:
+        output_config['iso_test_edges'] = load_config['iso_test_edges']
     del load_config
     if show:
         for k,v in output_config.items():
@@ -40,6 +46,6 @@ def get_graph_config(config_yaml,show=False):
 
 if __name__ == '__main__':
 
-    config_yaml = 'DefaultExp_AA.yaml'
+    config_yaml = 'Graph1_AA.yaml'
     output_config = get_graph_config(config_yaml,show=True)
-    print(type(output_config['neg_scores_target']))
+    print(type(output_config['iso_test_edges']))
