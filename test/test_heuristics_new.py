@@ -92,7 +92,7 @@ class HeuristicTests(unittest.TestCase):
 def get_args():
 
     parser = argparse.ArgumentParser(description='Heuristic graph algorithms')
-    parser.add_argument('--config_yaml',type=str,default='GraphIso_RA.yaml',
+    parser.add_argument('--config_yaml',type=str,default='GraphIso_Jac.yaml',
                         help='yaml file containing configuration of an algorithm example')
     args = parser.parse_args()
     return args

@@ -25,6 +25,8 @@ class HeuristicModels():
             self.rec_AA()
         if self.model == 'RA':
             self.RA()
+        if self.model == 'Jac':
+            self.Jac()
 
 
     def CN(self, batch_size=100000):
@@ -111,6 +113,29 @@ class HeuristicModels():
         scores = np.concatenate(scores, 0)
         self.scores = torch.FloatTensor(scores)
         print(f'evaluated Resource Allocation for {len(scores)} edges')
+
+
+    def Jac(self, batch_size=100000):
+        """
+        Jaccard: | Neib(x) and Neib(y) | / | Neib(x) or Neib(y) |
+        :param A: scipy sparse adjacency matrix
+        :param edge_index: pyg edge_index
+        :param batch_size: int
+        :return: FloatTensor [edges] of scores, pyg edge_index
+        """
+        A = self.A.toarray()
+        link_loader = DataLoader(range(self.edge_index.size(0)), batch_size)
+        scores = []
+        for ind in link_loader:
+            src, dst = self.edge_index[ind, 0], self.edge_index[ind, 1]
+            inter = np.sum(np.logical_and(A[src],A[dst]), axis=1) # intersection: Neib(x) and Neib(y)
+            union = np.sum(np.logical_or(A[src],A[dst]), axis=1) # union: Neib(x) or Neib(y)
+            cur_scores = (inter / union).flatten()
+            cur_scores[np.isinf(cur_scores)] = 0
+            scores.append(cur_scores)
+        scores = np.concatenate(scores, 0)
+        self.scores = torch.FloatTensor(scores)
+        print(f'evaluated Jaccard for {len(scores)} edges')
 
 
     def PPR(A, edge_index):
