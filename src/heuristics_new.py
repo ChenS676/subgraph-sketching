@@ -27,6 +27,8 @@ class HeuristicModels():
             self.RA()
         if self.model == 'Jac':
             self.Jac()
+        if self.model == 'PA':
+            self.PA()
 
 
     def CN(self, batch_size=100000):
@@ -136,6 +138,28 @@ class HeuristicModels():
         scores = np.concatenate(scores, 0)
         self.scores = torch.FloatTensor(scores)
         print(f'evaluated Jaccard for {len(scores)} edges')
+
+
+    def PA(self, batch_size=100000):
+        """
+        preferential attachment: | Neib(x) x Neib(y) |
+        :param A: scipy sparse adjacency matrix
+        :param edge_index: pyg edge_index
+        :param batch_size: int
+        :return: FloatTensor [edges] of scores, pyg edge_index
+        """
+        A = self.A.toarray()
+        link_loader = DataLoader(range(self.edge_index.size(0)), batch_size)
+        scores = []
+        for ind in link_loader:
+            src, dst = self.edge_index[ind, 0], self.edge_index[ind, 1]
+            Neib_src = np.sum(A[src], axis=1) # number of Neib(x)
+            Neib_dst = np.sum(A[dst], axis=1) # number of Neib(y)
+            cur_scores = Neib_src * Neib_dst
+            scores.append(cur_scores)
+        scores = np.concatenate(scores, 0)
+        self.scores = torch.FloatTensor(scores)
+        print(f'evaluated preferential attachment for {len(scores)} edges')
 
 
     def PPR(A, edge_index):

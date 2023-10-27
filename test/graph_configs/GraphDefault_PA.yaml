@@ -1,0 +1,9 @@
+algorithm: 'PA'
+num_nodes: 3
+edge_index: [[0,2,2,1], [1,0,1,2]]
+pos_test_edges: [[0, 1], [1, 2]]
+neg_test_edges: [[0, 1], [2, 0]]
+train_scores_target: ['1*1', '2*1', '2*1', '1*2']
+pos_scores_target: ['1*1', '1*2']
+neg_scores_target: ['1*2', '1*1']
+iso_test_edges: 'None'

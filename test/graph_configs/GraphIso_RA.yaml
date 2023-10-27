@@ -1,0 +1,9 @@
+algorithm: 'RA'
+num_nodes: 5
+edge_index: [[2, 2, 3, 3, 4, 0], [1, 4, 1, 4, 0, 1]] # create a graph with 2 isomorphic nodes 2 & 3
+pos_test_edges: [[0, 2], [1, 1]]
+neg_test_edges: [[2, 3], [0, 0]]
+train_scores_target: [0, 0, 0, 0, 0, 0]
+pos_scores_target: [0, 0]
+neg_scores_target: ['1/3', '1/3']
+iso_test_edges: [[2, 3], [0, 0]]
