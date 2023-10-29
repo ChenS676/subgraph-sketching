@@ -118,10 +118,14 @@ def run(args):
         path = f'{ROOT_DIR}/saved_models/{args.dataset_name}'
         torch.save(model.state_dict(), path)
     if args.save_result:
+<<<<<<< HEAD
         path = f'{ROOT_DIR}/saved_results/{args.dataset_name}-{args.wandb_run_name}-{args.wandb_tags}.xlsx'
         # ToDo save excel metrics. 
         save_metrics_to_csv(wandb_results)
         print('saved.')
+=======
+        pass
+>>>>>>> cdcca4c (update script local)
 
 def select_model(args, dataset, emb, device):
     
@@ -277,7 +281,6 @@ if __name__ == '__main__':
     parser.add_argument('--wandb_notes', nargs='+', help='notes to add to wandb')
     parser.add_argument('--wandb_tags', type=str, help='tags to add to wandb')
     parser.add_argument('--log_features', action='store_true', help="log feature importance")
-
     parser.add_argument('--save_result', type=bool, default=True, help="save the result to use later for inference")
 
     args = parser.parse_args()

@@ -116,6 +116,27 @@ class ElphHashes(object):
         ], dtype=np.uint64).T
 
     def initialise_minhash(self, n_nodes):
+        """
+            Initialise the MinHash values for each node.
+
+            This function initializes MinHash values for a specified number of nodes. MinHash is a probabilistic data structure
+            used for estimating set similarity.
+
+            Parameters:
+            - self: An instance of a class (implicit).
+            - n_nodes (int): The number of nodes for which MinHash values need to be initialized.
+
+            Returns:
+            - torch.Tensor: A PyTorch tensor containing the MinHash values for each node. The data type is torch.int64.
+
+            Notes:
+            - The function uses random permutations, hashing, and mathematical operations to compute MinHash signatures.
+            - MinHash values are initialized based on the provided parameters and returned as a PyTorch tensor.
+
+            References:
+            - For more information on MinHash: https://en.wikipedia.org/wiki/MinHash
+
+        """
         init_hv = np.ones((n_nodes, self.num_perm), dtype=np.int64) * self._max_minhash
         a, b = self._init_permutations(self.num_perm)
         hv = hash_array(np.arange(1, n_nodes + 1))

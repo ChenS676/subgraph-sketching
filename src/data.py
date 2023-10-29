@@ -483,7 +483,7 @@ class Textgraph(InMemoryDataset):
 
         elif self.feature_type == 'TA':
             print("Loading pretrained LM features (title and abstract) ...")
-            LM_emb_path = f"{self.root}/prt_lm/{self.dataset_name}/{self.lm_model_name}-seed{self.seed}.emb"
+            LM_emb_path = os.path.join(self.root, f"prt_lm/{self.dataset_name}/{self.lm_model_name}-seed{self.seed}.emb")
             print(f"LM_emb_path: {LM_emb_path}")
             features = torch.from_numpy(np.array(
                 np.memmap(LM_emb_path, mode='r',

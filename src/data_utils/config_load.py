@@ -22,7 +22,7 @@ def set_data_cfg(cfg):
 	cfg.dataset.cora.original = cfg.dataset.cora.root + 'dataset/cora_orig/cora'
 	cfg.dataset.cora.papers =  cfg.dataset.cora.root + 'dataset/cora_orig/mccallum/cora/papers'
 	cfg.dataset.cora.extractions =  cfg.dataset.cora.root + 'dataset/cora_andrew_mccallum/extractions/'
-	cfg.dataset.cora.lm_model_name = 'microsoft/deberta-base'
+	cfg.dataset.cora.lm_model_name = 'deberta-base'
 	# ------------------------------------------------------------------------ #
 	cfg.dataset.pubmed = CN()
 	cfg.dataset.pubmed.root = ''
