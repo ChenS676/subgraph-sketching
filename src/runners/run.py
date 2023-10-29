@@ -12,7 +12,7 @@ from math import inf
 import sys
 import random
 
-# sys.path.insert(0, '..')
+sys.path.insert(0, '..')
 
 import numpy as np
 import torch
@@ -28,7 +28,7 @@ warnings.filterwarnings("ignore", category=SparseEfficiencyWarning)
 from src.data import get_data, get_loaders
 from src.models.elph import ELPH, BUDDY
 from src.models.seal import SEALDGCNN, SEALGCN, SEALGIN, SEALSAGE
-from src.utils import ROOT_DIR, print_model_params, select_embedding, str2bool
+from src.utils import ROOT_DIR, print_model_params, select_embedding, str2bool, save_metrics_to_csv
 from src.wandb_setup import initialise_wandb
 from src.runners.train import get_train_func
 from src.runners.inference import test
@@ -104,19 +104,24 @@ def run(args):
         test_acc_std = np.sqrt(np.var(results_list, axis=0)[0]) * 100
         val_acc_std = np.sqrt(np.var(results_list, axis=0)[1]) * 100
 
-        wandb_results = {'test_mean': test_acc_mean, 'val_mean': val_acc_mean, 'train_mean': train_acc_mean,
-                         'test_acc_std': test_acc_std, 'val_acc_std': val_acc_std}
+        id = f'{args.dataset_name}-{args.wandb_run_name}-{args.wandb_tags}'
+        wandb_results = {'id': id, 
+                         'test_mean': test_acc_mean, 'val_mean': val_acc_mean, 'train_mean': train_acc_mean,
+                            'test_acc_std': test_acc_std, 'val_acc_std': val_acc_std, 'epoch': args.epochs}
+        del id
         print(wandb_results)
-        if args.wandb:
-            wandb.log(wandb_results)
+    if args.wandb:
+        wandb.log(wandb_results)
     if args.wandb:
         wandb.finish()
     if args.save_model:
         path = f'{ROOT_DIR}/saved_models/{args.dataset_name}'
         torch.save(model.state_dict(), path)
     if args.save_result:
-        path = f'{ROOT_DIR}/saved_results/{args.dataset_name}'
-        torch.save(model.state_dict(), path)
+        path = f'{ROOT_DIR}/saved_results/{args.dataset_name}-{args.wandb_run_name}-{args.wandb_tags}.xlsx'
+        # ToDo save excel metrics. 
+        save_metrics_to_csv(wandb_results)
+        print('saved.')
 
 def select_model(args, dataset, emb, device):
     
@@ -232,7 +237,7 @@ if __name__ == '__main__':
     parser.add_argument('--pretrained_node_embedding', type=str, default=None,
                         help="load pretrained node embeddings as additional node features")
     # Testing settings
-    parser.add_argument('--reps', type=int, default=1, help='the number of repetition of the experiment to run')
+    parser.add_argument('--reps', type=int, default=2, help='the number of repetition of the experiment to run')
     parser.add_argument('--use_valedges_as_input', action='store_true')
     parser.add_argument('--eval_steps', type=int, default=1)
     parser.add_argument('--log_steps', type=int, default=1)
@@ -272,6 +277,9 @@ if __name__ == '__main__':
     parser.add_argument('--wandb_notes', nargs='+', help='notes to add to wandb')
     parser.add_argument('--wandb_tags', type=str, help='tags to add to wandb')
     parser.add_argument('--log_features', action='store_true', help="log feature importance")
+
+    parser.add_argument('--save_result', type=bool, default=True, help="save the result to use later for inference")
+
     args = parser.parse_args()
     if (args.max_hash_hops == 1) and (not args.use_zero_one):
         print("WARNING: (0,1) feature knock out is not supported for 1 hop. Running with all features")

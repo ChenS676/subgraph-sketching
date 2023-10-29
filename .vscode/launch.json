@@ -18,16 +18,16 @@
 			},
 			"args": [
 				"--dataset_name",
-				"pubmed",
+				"ogbn-arxiv",
 				"--model",
 				"ELPH", 
 				"--use_text",	
-				"False",
-				"--wandb_group", 
-				"reconstruct",
-				"--wandb_tags",
-				"baseline",
-				"--wandb"]
+				"False"]
+				// "--wandb_group", 
+				// "reconstruct",
+				// "--wandb_tags",
+				// "baseline",
+				// "--wandb"
 		}
 	]
 }

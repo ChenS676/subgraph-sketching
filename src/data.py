@@ -8,6 +8,7 @@ import time
 import torch
 from torch.utils.data import DataLoader
 from ogb.linkproppred import PygLinkPropPredDataset
+from ogb.nodeproppred import PygNodePropPredDataset
 from torch_geometric.data import Data
 from torch_geometric.datasets import Planetoid
 from torch_geometric.transforms import RandomLinkSplit
@@ -103,12 +104,17 @@ def get_data(args):
         path = os.path.join(ROOT_DIR, 'dataset', dataset_name)
         print(f'reading data from: {path}')
         if dataset_name.startswith('ogbl'):
+            # for collab, ppa, ddi, citation2
             use_lcc_flag = False
             dataset = PygLinkPropPredDataset(name=dataset_name, root=path)
             if dataset_name == 'ogbl-ddi':
                 dataset.data.x = torch.ones((dataset.data.num_nodes, 1))
                 dataset.data.edge_weight = torch.ones(dataset.data.edge_index.size(1), dtype=int)
+        if dataset_name.startswith('ogbn'): # need to use ogdn-arxiv for comparison
+            use_lcc_flag = False
+            dataset = PygNodePropPredDataset(name=dataset_name, root=path)
         else:
+            # in original repo for cora, citeseer, pubmed 
             dataset = Planetoid(path, dataset_name)
 
     # set the metric
