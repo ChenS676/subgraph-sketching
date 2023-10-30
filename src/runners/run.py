@@ -118,14 +118,9 @@ def run(args):
         path = f'{ROOT_DIR}/saved_models/{args.dataset_name}'
         torch.save(model.state_dict(), path)
     if args.save_result:
-<<<<<<< HEAD
-        path = f'{ROOT_DIR}/saved_results/{args.dataset_name}-{args.wandb_run_name}-{args.wandb_tags}.xlsx'
         # ToDo save excel metrics. 
         save_metrics_to_csv(wandb_results)
         print('saved.')
-=======
-        pass
->>>>>>> cdcca4c (update script local)
 
 def select_model(args, dataset, emb, device):
     
