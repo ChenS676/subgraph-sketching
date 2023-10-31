@@ -110,10 +110,8 @@ def get_data(args):
             if dataset_name == 'ogbl-ddi':
                 dataset.data.x = torch.ones((dataset.data.num_nodes, 1))
                 dataset.data.edge_weight = torch.ones(dataset.data.edge_index.size(1), dtype=int)
-        if dataset_name.startswith('ogbn'): # need to use ogdn-arxiv for comparison
-            use_lcc_flag = False
-            dataset = PygNodePropPredDataset(name=dataset_name, root=path)
         else:
+            # use text none, cora, pubmed, citeseer, obgn-arxiv
             # in original repo for cora, citeseer, pubmed 
             dataset = Planetoid(path, dataset_name)
 
@@ -132,6 +130,10 @@ def get_data(args):
         split_edge = dataset.get_edge_split()
         if dataset_name == 'ogbl-collab' and args.year > 0:  # filter out training edges before args.year
             data, split_edge = filter_by_year(data, split_edge, args.year)
+        splits = get_ogb_data(data, split_edge, dataset_name, args.num_negs)
+    if dataset_name.startswith('ogbn'):  # use the built in splits
+        data = dataset[0]
+        split_edge = dataset.get_edge_split()
         splits = get_ogb_data(data, split_edge, dataset_name, args.num_negs)
     else:  # use the random splits
         transform = RandomLinkSplit(is_undirected=undirected, num_val=val_pct, num_test=test_pct,
@@ -482,8 +484,9 @@ class Textgraph(InMemoryDataset):
             self.node_feat = self._data.x
 
         elif self.feature_type == 'TA':
+            # /pfs/work7/workspace/scratch/cc7738-prefeature/TAPE/prt_lm/cora 2/microsoft/deberta-base-seed0.ckpt
             print("Loading pretrained LM features (title and abstract) ...")
-            LM_emb_path = os.path.join(self.root, f"prt_lm/{self.dataset_name}/{self.lm_model_name}-seed{self.seed}.emb")
+            LM_emb_path = os.path.join(self.root, f"prt_lm/{self.dataset_name}/microsoft/{self.lm_model_name}-seed{self.seed}.emb")
             print(f"LM_emb_path: {LM_emb_path}")
             features = torch.from_numpy(np.array(
                 np.memmap(LM_emb_path, mode='r',
@@ -494,7 +497,7 @@ class Textgraph(InMemoryDataset):
 
         elif self.feature_type == 'E':
             print("Loading pretrained LM features (explanations) ...")
-            LM_emb_path = f"{self.root}/prt_lm/{self.dataset_name}2/{self.lm_model_name}-seed{self.seed}.emb"
+            LM_emb_path = f"{self.root}/prt_lm/{self.dataset_name}2/microsoft/{self.lm_model_name}-seed{self.seed}.emb"
             print(f"LM_emb_path: {LM_emb_path}")
             features = torch.from_numpy(np.array(
                 np.memmap(LM_emb_path, mode='r',
@@ -512,7 +515,6 @@ class Textgraph(InMemoryDataset):
 
     def process(self):
         # read data from text files
-
         self._data = load_data(self.cfg, self.dataset_name, use_text=False, seed=self.seed)
         # read from pretrained LM
         self.node_feat = self.load_features()

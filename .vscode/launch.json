@@ -22,7 +22,7 @@
 				"--model",
 				"ELPH", 
 				"--use_text",	
-				"False"]
+				"True"]
 				// "--wandb_group", 
 				// "reconstruct",
 				// "--wandb_tags",
