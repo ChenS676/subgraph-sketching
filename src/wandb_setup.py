@@ -3,15 +3,16 @@ configuring wandb settings
 """
 import os
 from copy import deepcopy
-
+from src.config_load import update_cfg, cfgnode_to_dict, recursive_search_key
 import wandb
 
 
 def initialise_wandb(args, config=None):
-    opt = deepcopy(vars(args))
+    a = deepcopy(cfgnode_to_dict(args))
     if config:
-        opt.update(config)
-    if args.wandb:
+        a.update(config)
+    if 'wandb' in a:
+        opt = deepcopy(a['wandb'])
         if opt['use_wandb_offline']:
             os.environ["WANDB_MODE"] = "offline"
         else:
@@ -32,4 +33,4 @@ def initialise_wandb(args, config=None):
 
     else:
         os.environ["WANDB_MODE"] = "disabled"  # sets as NOOP, saves keep writing: if opt['wandb']:
-        return args
+        return 

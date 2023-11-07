@@ -17,6 +17,7 @@ def get_largest_connected_component(dataset: InMemoryDataset) -> np.ndarray:
   return np.array(list(comps[np.argmax(list(map(len, comps)))]))
 
 import scipy.sparse as sp
+
 def largest_connected_components(sparse_graph: 'gust.SparseGraph', n_components: int = 1) -> 'gust.SparseGraph':
     """Select the largest connected components in the graph.
 
@@ -43,7 +44,7 @@ def largest_connected_components(sparse_graph: 'gust.SparseGraph', n_components:
     ]
     # TODO: add warnings / logging
     # print("Selecting {0} largest connected components".format(n_components))
-    return create_subgraph(sparse_graph, nodes_to_keep=nodes_to_keep)
+    return nodes_to_keep
 
 def get_node_mapper(lcc: np.ndarray) -> dict:
   mapper = {}

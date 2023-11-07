@@ -130,3 +130,34 @@ python runners/run.py --dataset_name ogbn-arxiv --model BUDDY --use_text True  -
 
 
 'SEALDGCNN', 'SEALSAGE','SEALGCN','SEALGIN'
+
+
+// TODO:
+test usnig epoch 2
+# for slurm training assignment
+test the version for ogbn-arxiv without text for only epoch and check the functions 
+important is the result file metrics.csv 
+python runners/run.py --dataset_name ogbn-arxiv --model ELPH --use_text False --epochs 2 
+221 s per epoch
+python runners/run.py --dataset_name ogbn-arxiv --model ELPH --use_text True --epochs 2
+390s per epoch
+
+# Q1
+For Cora, Citeseer, Pubmed where does their node feature, edge split comes from ?
+For Cora, Citeseer, Pubmed use lcc
+For obgl-collab or othere without lcc? 
+
+# Q2
+for obgn-products the memory of gpu is not enough even with batch 1, So, 85 GiB is equal to 87,040 MiB is required. 
+
+# 03 
+ogbn-citation2 graph where is the text features. 
+
+
+# 04 
+freeze the dataset as cora, pubmed as base-dataset
+
+# Q5
+for pretrain model, 
+dataset: cora, pubmed, ogbn-arxiv 
+GCN: input is the path of the emb

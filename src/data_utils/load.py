@@ -21,7 +21,7 @@ def get_text_graph(dataset: str,
         data, text = get_raw_text(use_text=True, seed=seed)
         return data, text
 
-if __name__ == '__main__':
-    data, text = get_text_graph('cora', use_text=True) 
-    print(data)
-    print(text)
+# if __name__ == '__main__':
+#     data, text = get_text_graph('cora', use_text=True) 
+#     print(data)
+#     print(text)

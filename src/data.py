@@ -25,8 +25,7 @@ from src.datasets.elph import get_hashed_train_val_test_datasets, make_train_eva
 import json, sys
 from pdb import set_trace as bp
 from yacs.config import CfgNode
-from .data_utils.config_load import cfg_data as cfg
-from .data_utils.config_load import update_cfg
+from .config_load import cfg_data as cfg
 import os.path as osp
 from typing import Any, Callable, List, Optional
 
@@ -35,10 +34,35 @@ import torch
 
 from torch_geometric.data import InMemoryDataset, download_url, Dataset
 from torch_geometric.io import read_planetoid_data
+from IPython import embed
+
+dataset_path = {
+    'cora':
+            { 
+            'root': '',
+            'original': 'dataset/cora_orig/cora',
+            'papers': 'dataset/cora_orig/mccallum/cora/papers',
+            'extractions': 'dataset/cora_andrew_mccallum/extractions/'
+			},
+    'pubmed': 
+            {
+            'root': '',
+            'original': 'dataset/PubMed_orig/data/',
+            'abs_ti': 'dataset/PubMed_orig/pubmed.json'
+            },
+    'arxiv':
+        {
+            'root': '',
+            'original': 'dataset/ogbn_arxiv_orig/',
+            'abs_ti': 'dataset/ogbn_arxiv_orig/titleabs.tsv'
+        }
+
+    }
+
 
 def get_loaders(args, dataset, splits, directed):
     train_data, val_data, test_data = splits['train'], splits['valid'], splits['test']
-    if args.model in {'ELPH', 'BUDDY'}:
+    if args.gnn.model.name in {'ELPH', 'BUDDY'}:
         train_dataset, val_dataset, test_dataset = get_hashed_train_val_test_datasets(dataset, train_data, val_data,
                                                                                       test_data, args, directed)
     else:
@@ -86,40 +110,49 @@ def get_data(args):
     # TODO add embedding for cora, arxiv, and pubmed for NLP method 
     """
     include_negatives = True
-    dataset_name = args.dataset_name
-    use_text = args.use_text
-    val_pct = args.val_pct
-    test_pct = args.test_pct
+    dataset_name = args.dataset.name
+    use_text = args.dataset.use_text
+    val_pct = args.dataset.val_pct
+    test_pct = args.dataset.test_pct
     use_lcc_flag = True
     directed = False
     eval_metric = 'hits'
     splits = None
 
-    if use_text and dataset_name in {'cora', 'pubmed', 'ogbn-arxiv'}:
+    # config all
+    # https://github.com/melifluos/subgraph-sketching/blob/main/src/data.py#L82
+    path = os.path.join(ROOT_DIR, 'dataset', dataset_name)
+    print(f'reading data from: {path}')
+    if dataset_name.startswith('ogbl'):
+        # for collab, ppa, ddi, citation2
+        use_lcc_flag = False
+        dataset = PygLinkPropPredDataset(name=dataset_name, root=path)
+        if dataset_name == 'ogbl-ddi':
+            dataset.data.x = torch.ones((dataset.data.num_nodes, 1))
+            dataset.data.edge_weight = torch.ones(dataset.data.edge_index.size(1), dtype=int)
+
+    # for ogbn-arxiv and use text false
+    elif dataset_name.startswith('ogbn') and not use_text:
+        use_lcc_flag = False
+        dataset = PygNodePropPredDataset(name=dataset_name, root=path)
+
+        # dataset.data.x = torch.ones((dataset.data.num_nodes, 1))
+        # dataset.data.edge_weight = torch.ones(dataset.data.edge_index.size(1), dtype=int)        
+    elif dataset_name in ['cora', 'pubmed', 'ogbn-arxiv'] and use_text:# 'ogbn-products', 'tape-arxiv23'], "Invalid dataset name"
         dataset = Textgraph(cfg, dataset_name, use_text)
         directed = False 
         splits = dataset.splits
-    else:
-        # https://github.com/melifluos/subgraph-sketching/blob/main/src/data.py#L82
-        path = os.path.join(ROOT_DIR, 'dataset', dataset_name)
-        print(f'reading data from: {path}')
-        if dataset_name.startswith('ogbl'):
-            # for collab, ppa, ddi, citation2
+        if dataset_name.startswith('ogbn'):
             use_lcc_flag = False
-            dataset = PygLinkPropPredDataset(name=dataset_name, root=path)
-            if dataset_name == 'ogbl-ddi':
-                dataset.data.x = torch.ones((dataset.data.num_nodes, 1))
-                dataset.data.edge_weight = torch.ones(dataset.data.edge_index.size(1), dtype=int)
-        else:
-            # use text none, cora, pubmed, citeseer, obgn-arxiv
-            # in original repo for cora, citeseer, pubmed 
-            dataset = Planetoid(path, dataset_name)
+    else:
+        # with default use text wrong
+        dataset = Planetoid(path, dataset_name)
 
     # set the metric
     if dataset_name.startswith('ogbl-citation'):
         eval_metric = 'mrr'
         directed = True
-
+    print(f"number of nodes: {dataset.data.num_nodes}")
     if use_lcc_flag:
         dataset = use_lcc(dataset)
 
@@ -128,17 +161,23 @@ def get_data(args):
     if dataset_name.startswith('ogbl'):  # use the built in splits
         data = dataset[0]
         split_edge = dataset.get_edge_split()
+        #############################################
         if dataset_name == 'ogbl-collab' and args.year > 0:  # filter out training edges before args.year
             data, split_edge = filter_by_year(data, split_edge, args.year)
         splits = get_ogb_data(data, split_edge, dataset_name, args.num_negs)
-    if dataset_name.startswith('ogbn'):  # use the built in splits
-        data = dataset[0]
-        split_edge = dataset.get_edge_split()
-        splits = get_ogb_data(data, split_edge, dataset_name, args.num_negs)
+        #############################################
+    elif dataset_name.startswith('ogbn'):  # use the built in splits
+        
+        transform = RandomLinkSplit(is_undirected=True, num_val=0.1, num_test=0.2,
+                                    add_negative_train_samples=True)
+        train_data, val_data, test_data = transform(dataset.data)
+        # TODO implement custom edge split read the paper and check the code
+        splits = {'train': train_data, 'valid': val_data, 'test': test_data}
     else:  # use the random splits
         transform = RandomLinkSplit(is_undirected=undirected, num_val=val_pct, num_test=test_pct,
                                     add_negative_train_samples=include_negatives)
-        print(type(dataset.data.edge_index))
+        print(f'using random splits with val_pct={val_pct} and test_pct={test_pct}')
+        print(f'{dataset.data.x.shape[0]}')
         train_data, val_data, test_data = transform(dataset.data)
         splits = {'train': train_data, 'valid': val_data, 'test': test_data}
         for v in splits.values():
@@ -188,8 +227,7 @@ def get_ogb_data(data, split_edge, dataset_name, num_negs=1):
         print('negatives not found on disk. Generating negatives')
         train_negs = get_ogb_train_negs(split_edge, data.edge_index, data.num_nodes, num_negs, dataset_name)
         torch.save(train_negs, negs_name)
-    # else:
-    #     train_negs = get_ogb_train_negs(split_edge, data.edge_index, data.num_nodes, num_negs, dataset_name)
+
     splits = {}
     for key in split_edge.keys():
         # the ogb datasets come with test and valid negatives, but you have to cook your own train negs
@@ -289,7 +327,7 @@ def use_lcc(dataset):
 
 
 
-def load_data(cfg, dataset, use_text=False, use_gpt=False, seed=0):
+def load_data(cfg, dataset, use_text, use_gpt=False, seed=0):
     if dataset == 'cora':
         from  src.data_utils.load_cora import get_raw_text_cora as get_raw_text
     elif dataset == 'pubmed':
@@ -301,7 +339,7 @@ def load_data(cfg, dataset, use_text=False, use_gpt=False, seed=0):
 
     # for training GNN
     if not use_text:
-        data, _ = get_raw_text(cfg, use_text=False, seed=seed)
+        data, _ = get_raw_text(cfg, use_text, seed=seed)
         return data
 
     # for finetuning LM
@@ -400,13 +438,14 @@ class Textgraph(InMemoryDataset):
                  num_test: int = 1000, transform: Optional[Callable] = None,
                  pre_transform: Optional[Callable] = None):
         # data 
-        self.name = name+'-text'
+        self.name = name
         self.cfg = cfg
         self.use_text = use_text
         self.split = split
         self.dataset_name = name
-        self.root = cfg.dataset.cora.root
-        self.lm_model_name = cfg.dataset.cora.lm_model_name
+        # change here to different datasets solution save it as a default variable in local file 
+        self.root = dataset_path[name]['root']
+        self.lm_model_name = cfg.lm.model.name 
         self.seed = cfg.seed
         self.device = cfg.device
         self.feature_type = cfg.dataset.feature_type # ogb, TA, E, P
@@ -426,9 +465,9 @@ class Textgraph(InMemoryDataset):
     @property
     def raw_file_names(self) -> List[str]:
         self.prt_lm = f"{self.root}/prt_lm/{self.dataset_name}/{self.lm_model_name}-seed{self.seed}.emb"
-        return [self.cfg.dataset.cora.original,
-        self.cfg.dataset.cora.papers,
-        self.cfg.dataset.cora.extractions,
+        return [dataset_path[self.name]['original'],
+        dataset_path[self.name]['papers'],
+        dataset_path[self.name]['extractions'],
         self.prt_lm]
 
     @property 
@@ -515,7 +554,7 @@ class Textgraph(InMemoryDataset):
 
     def process(self):
         # read data from text files
-        self._data = load_data(self.cfg, self.dataset_name, use_text=False, seed=self.seed)
+        self._data = load_data(self.cfg, self.cfg.dataset.name, use_text=False, seed=self.seed)
         # read from pretrained LM
         self.node_feat = self.load_features()
         # replace node features

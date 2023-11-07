@@ -12,12 +12,14 @@ import wandb
 import numpy as np
 from pdb import set_trace as bp 
 from src.utils import get_num_samples
+from src.config_load import dict_to_argparser
 
 
 def get_train_func(args):
-    if args.model == 'ELPH':
+    
+    if args.gnn.model.name == 'ELPH':
         return train_elph
-    elif args.model == 'BUDDY':
+    elif args.gnn.model.name == 'BUDDY':
         train_func = train_buddy
     else:
         train_func = train

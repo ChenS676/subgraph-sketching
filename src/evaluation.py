@@ -2,7 +2,7 @@
 hitrate@k, mean reciprocal rank (MRR) and Area under the receiver operator characteristic curve (AUC) evaluation metrics
 """
 from sklearn.metrics import roc_auc_score
-
+import numpy as np
 
 def evaluate_hits(evaluator, pos_train_pred, neg_train_pred, pos_val_pred, neg_val_pred, pos_test_pred, neg_test_pred,
                   Ks=[20, 50, 100], use_val_negs_for_train=True):
@@ -96,3 +96,21 @@ def evaluate_auc(val_pred, val_true, test_pred, test_true):
     results['AUC'] = (valid_auc, test_auc)
 
     return results
+
+
+class Evaluator:
+    def __init__(self, name):
+        self.name = name
+
+    def eval(self, input_dict):
+        y_true, y_pred = input_dict["y_true"], input_dict["y_pred"]
+        y_pred = y_pred.detach().cpu().numpy()
+        y_true = y_true.detach().cpu().numpy()
+        acc_list = []
+
+        for i in range(y_true.shape[1]):
+            is_labeled = y_true[:, i] == y_true[:, i]
+            correct = y_true[is_labeled, i] == y_pred[is_labeled, i]
+            acc_list.append(float(np.sum(correct))/len(correct))
+
+        return {'acc': sum(acc_list)/len(acc_list)}

@@ -1,0 +1,105 @@
+device: 0
+seed: 1
+runs: 1
+dataset:
+  name: cora
+  use_feature: False
+  use_text: False
+  val_pct: 0.1
+  test_pct: 0.2
+
+gnn:
+  model:
+    name: 'BUDDY'
+    K: 100
+    add_normed_features: False
+    batch_size: 1024
+    cache_subgraph_features: False
+    config: ''
+    max_dist: 4
+    max_hash_hops: 2
+    max_nodes_per_hop: null
+    max_z: 1000
+    minhash_num_perm: 128
+    node_label: drnl
+    num_hops: 1
+    num_negs: 1
+    num_seal_layers: 3
+    num_workers: 11
+    opts: []
+    preprocessing: null
+    pretrained_node_embedding: null
+    propagate_embeddings: False
+    ratio_per_hop: 1.0
+    rep: 0
+    rep_doc: 1
+    use_RA: False
+    use_edge_weight: False
+    use_struct_feature: True
+    use_text: True
+    use_valedges_as_input: False
+    use_wandb_offline: False
+
+
+  log:
+    log_features: False
+    log_steps: 1
+    loss: bce
+    lr: 0.0001
+
+  train:
+    dropout: 0.5
+    dynamic_test: False
+    dynamic_train: False
+    dynamic_val: False
+    epochs: 2
+    eval_batch_size: 1000000
+    eval_metric: hits
+    eval_steps: 1
+    feature_dropout: 0.5
+    feature_prop: gcn
+    floor_sf: 0
+    hidden_channels: 1024
+    hll_p: 8
+    label_dropout: 0.5
+    label_pooling: add
+    load_features: False
+    load_hashes: False
+    save_model: False
+    save_result: True
+    seal_pooling: edge
+    sign_dropout: 0.5
+    sign_k: 0
+    sortpool_k: 0.6
+    subgraph_feature_batch_size: 11000000
+    use_zero_one: 0
+    test_samples: .inf
+    train_cache_size: .inf
+    train_node_embedding: False
+    train_samples: .inf
+
+    val_samples: .inf
+
+wandb:
+  enable: True
+  wandb_entity: graph-diffusion-model-link-prediction
+  wandb_epoch_list:
+    - 0
+    - 1
+    - 2
+    - 4
+    - 8
+    - 16
+  wandb_group: reconstruct
+  wandb_log_freq: 1
+  wandb_notes: None
+  wandb_output_dir: ./wandb_output
+  wandb_project: link-prediction
+  wandb_run_name: null
+  wandb_sweep: False
+  wandb_tags: baseline
+  wandb_track_grad_flow: False
+  wandb_watch_grad: False
+  weight_decay: 0
+  use_wandb_offline: False
+  year: 0

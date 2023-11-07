@@ -27,7 +27,7 @@ class HashDataset(Dataset):
     def __init__(
             self, root, split, data, pos_edges, neg_edges, args, use_coalesce=False,
             directed=False, **kwargs):
-        if args.model != 'ELPH':  # elph stores the hashes directly in the model class for message passing
+        if args.gnn.model.name != 'ELPH':  # elph stores the hashes directly in the model class for message passing
             self.elph_hashes = ElphHashes(args)  # object for hash and subgraph feature operations
         self.split = split  # string: train, valid or test
         self.root = root
@@ -36,9 +36,9 @@ class HashDataset(Dataset):
         self.use_coalesce = use_coalesce
         self.directed = directed
         self.args = args
-        self.load_features = args.load_features
-        self.load_hashes = args.load_hashes
-        self.use_zero_one = args.use_zero_one
+        self.load_features = args.train.load_features
+        self.load_hashes = args.train.load_hashes
+        self.use_zero_one = args.train.use_zero_one
         self.cache_subgraph_features = args.cache_subgraph_features
         self.max_hash_hops = args.max_hash_hops
         self.use_feature = args.use_feature
@@ -245,7 +245,7 @@ class HashDataset(Dataset):
 def get_hashed_train_val_test_datasets(dataset, train_data, val_data, test_data, args, directed=False):
     root = f'{dataset.root}/elph_'
     print(f'data path: {root}')
-    use_coalesce = True if args.dataset_name == 'ogbl-collab' else False
+    use_coalesce = True if args.dataset.name == 'ogbl-collab' else False
     pos_train_edge, neg_train_edge = get_pos_neg_edges(train_data)
     pos_val_edge, neg_val_edge = get_pos_neg_edges(val_data)
     pos_test_edge, neg_test_edge = get_pos_neg_edges(test_data)
