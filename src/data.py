@@ -73,22 +73,23 @@ def get_loaders(args, dataset, splits, directed):
         if args.wandb:
             wandb.log({"seal_preprocessing_time": time.time() - t0})
 
-    dl = DataLoader if args.model in {'ELPH', 'BUDDY'} else pygDataLoader
-    train_loader = dl(train_dataset, batch_size=args.batch_size,
-                      shuffle=True, num_workers=args.num_workers)
+    dl = DataLoader if args.gnn.model.name in {'ELPH', 'BUDDY'} else pygDataLoader
+    train_loader = dl(train_dataset, batch_size=args.dataset.dataloader.batch_size,
+                      shuffle=True, num_workers=args.device.num_workers)
     # as the val and test edges are often sampled they also need to be shuffled
     # the citation2 dataset has specific negatives for each positive and so can't be shuffled
-    shuffle_val = False if args.dataset_name.startswith('ogbl-citation') else True
-    val_loader = dl(val_dataset, batch_size=args.batch_size, shuffle=shuffle_val,
-                    num_workers=args.num_workers)
-    shuffle_test = False if args.dataset_name.startswith('ogbl-citation') else True
-    test_loader = dl(test_dataset, batch_size=args.batch_size, shuffle=shuffle_test,
-                     num_workers=args.num_workers)
-    if (args.dataset_name == 'ogbl-citation2') and (args.model in {'ELPH', 'BUDDY'}):
+    shuffle_val = False if args.dataset.name.startswith('ogbl-citation') else True
+    val_loader = dl(val_dataset, batch_size=args.dataset.dataloader.batch_size, 
+                    shuffle=shuffle_val,
+                    num_workers=args.device.num_workers)
+    shuffle_test = False if args.dataset.name.startswith('ogbl-citation') else True
+    test_loader = dl(test_dataset, batch_size=args.dataset.dataloader.batch_size, shuffle=shuffle_test,
+                     num_workers=args.device.num_workers)
+    if (args.dataset.name == 'ogbl-citation2') and (args.gnn.model.name in {'ELPH', 'BUDDY'}):
         train_eval_loader = dl(
             make_train_eval_data(args, train_dataset, train_data.num_nodes,
-                                  n_pos_samples=5000), batch_size=args.batch_size, shuffle=False,
-            num_workers=args.num_workers)
+                                  n_pos_samples=5000), batch_size=args.dataset.dataloader.batch_size, shuffle=False,
+            num_workers=args.device.num_workers)
     else:
         # todo change this so that eval doesn't have to use the full training set
         train_eval_loader = train_loader

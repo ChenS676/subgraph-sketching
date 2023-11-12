@@ -36,14 +36,14 @@ class HashDataset(Dataset):
         self.use_coalesce = use_coalesce
         self.directed = directed
         self.args = args
-        self.load_features = args.train.load_features
-        self.load_hashes = args.train.load_hashes
-        self.use_zero_one = args.train.use_zero_one
-        self.cache_subgraph_features = args.cache_subgraph_features
-        self.max_hash_hops = args.max_hash_hops
-        self.use_feature = args.use_feature
-        self.use_RA = args.use_RA
-        self.hll_p = args.hll_p
+        self.load_features = args.dataset.dataloader.load_features
+        self.load_hashes = args.dataset.dataloader.load_hashes
+        self.use_zero_one = args.dataset.dataloader.use_zero_one
+        self.cache_subgraph_features = args.dataset.dataloader.cache_subgraph_features
+        self.max_hash_hops = args.dataset.dataloader.max_hash_hops
+        self.use_feature = args.dataset.dataloader.use_feature
+        self.use_RA = args.dataset.dataloader.use_RA
+        self.hll_p = args.dataset.dataloader.hll_p
         self.subgraph_features = None
         self.hashes = None
         super(HashDataset, self).__init__(root)
@@ -76,13 +76,13 @@ class HashDataset(Dataset):
         if self.use_RA:
             self.RA = RA(self.A, self.links, batch_size=2000000)[0]
 
-        if args.model == 'ELPH':  # features propagated in the model instead of preprocessed
+        if args.gnn.model.name == 'ELPH':  # features propagated in the model instead of preprocessed
             self.x = data.x
         else:
-            self.x = self._preprocess_node_features(data, self.edge_index, self.edge_weight, args.sign_k)
+            self.x = self._preprocess_node_features(data, self.edge_index, self.edge_weight, args.dataset.dataloader.sign_k)
             # ELPH does hashing and feature prop on the fly
             # either set self.hashes or self.subgraph_features depending on cmd args
-            self._preprocess_subgraph_features(self.edge_index.device, data.num_nodes, args.num_negs)
+            self._preprocess_subgraph_features(self.edge_index.device, data.num_nodes, args.dataset.dataloader.num_negs)
 
     def _generate_sign_features(self, data, edge_index, edge_weight, sign_k):
         """
@@ -162,7 +162,7 @@ class HashDataset(Dataset):
         else:
             hop_str = ''
         end_str = f'_{hop_str}subgraph_featurecache.pt'
-        if self.args.dataset_name == 'ogbl-collab' and self.args.year > 0:
+        if self.args.dataset.name == 'ogbl-collab' and self.args.year > 0:
             year_str = f'year_{self.args.year}'
         else:
             year_str = ''
@@ -301,7 +301,7 @@ def make_train_eval_data(args, train_dataset, num_nodes, n_pos_samples=5000, neg
     # need to save train_eval_negs_5000 and train_eval_subgraph_features_5000 files
     # and ensure that the order is always the same just as with the other datasets
     print('constructing dataset to evaluate training performance')
-    dataset_name = args.dataset_name
+    dataset_name = args.dataset.name
     pos_sample = train_dataset.pos_edges[:n_pos_samples]  # [num_edges, 2]
     negs_name = f'{ROOT_DIR}/dataset/{dataset_name}/train_eval_negative_samples_{negs_per_pos}.pt'
     print(f'looking for negative edges at {negs_name}')

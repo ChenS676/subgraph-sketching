@@ -10,7 +10,7 @@ dataset:
 
 gnn:
   model:
-    name: 'BUDDY'
+    name: 'ELPH'
     K: 100
     add_normed_features: False
     batch_size: 1024

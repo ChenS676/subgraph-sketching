@@ -59,7 +59,7 @@ def run(args):
     set_seed(0) # set_seed(rep)
     dataset, splits, directed, eval_metric = get_data(args)
     train_loader, train_eval_loader, val_loader, test_loader = get_loaders(args, dataset, splits, directed)
-    if args.dataset_name.startswith('ogbl'):  # then this is one of the ogb link prediction datasets
+    if args.dataset.name.startswith('ogbl'):  # then this is one of the ogb link prediction datasets
         evaluator = Evaluator(name=args.dataset_name)
     else:
         evaluator = Evaluator(name='ogbl-ppa')  # this sets HR@100 as the metric
@@ -102,7 +102,7 @@ def run(args):
         test_acc_std = np.sqrt(np.var(results_list, axis=0)[0]) * 100
         val_acc_std = np.sqrt(np.var(results_list, axis=0)[1]) * 100
 
-        id = f'{args.dataset_name}-{args.model}-{args.use_text}'
+        id = f'{args.dataset.name}-{args.model}-{args.use_text}'
         wandb_results = {'id': id, 
                          'test_mean': test_acc_mean, 'val_mean': val_acc_mean, 'train_mean': train_acc_mean,
                             'test_acc_std': test_acc_std, 'val_acc_std': val_acc_std, 'epoch': args.epochs}
@@ -113,21 +113,23 @@ def run(args):
     if args.wandb:
         wandb.finish()
     if args.save_model:
-        path = f'{ROOT_DIR}/saved_models/{args.dataset_name}'
+        path = f'{ROOT_DIR}/saved_models/{args.dataset.name}'
         torch.save(model.state_dict(), path)
     if args.save_result:
         # ToDo save excel metrics. 
         save_metrics_to_csv(wandb_results)
         print('saved.')
-
-def select_model(args, dataset, emb, device):
-    
+from copy import deepcopy
+def select_model(parser, dataset, emb, device):
+    args = deepcopy(parser)
+    args.model = args.gnn.model.name
     if args.model == 'SEALDGCNN':
-        model = SEALDGCNN(args.hidden_channels, args.num_seal_layers, args.max_z, args.sortpool_k,
-                          dataset, args.dynamic_train, use_feature=args.use_feature,
+        model = SEALDGCNN(args.train.hidden_channels, args.num_seal_layers, args.gnn.model.max_z, 
+                          args.gnn.model.sortpool_k,
+                          dataset, args.gnn.model.dynamic_train, use_feature=args.data.dataloader.use_feature,
                           node_embedding=emb).to(device)
     elif args.model == 'SEALSAGE':
-        model = SEALSAGE(args.hidden_channels, args.num_seal_layers, args.max_z, dataset.num_features,
+        model = SEALSAGE(args.hidden_channels, args.num_seal_layers, args.max_z, dataset.dataloader.num_features,
                          args.use_feature, node_embedding=emb, dropout=args.dropout).to(device)
     elif args.model == 'SEALGCN':
         model = SEALGCN(args.hidden_channels, args.num_seal_layers, args.max_z, dataset.num_features,
@@ -143,7 +145,7 @@ def select_model(args, dataset, emb, device):
     else:
         raise NotImplementedError
     parameters = list(model.parameters())
-    if args.train_node_embedding:
+    if args.train.node_embedding:
         torch.nn.init.xavier_uniform_(emb.weight)
         parameters += list(emb.parameters())
     optimizer = torch.optim.Adam(params=parameters, lr=args.lr, weight_decay=args.weight_decay)

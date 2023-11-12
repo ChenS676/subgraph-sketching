@@ -343,11 +343,11 @@ def update_cfg(cfg, args_str=None):
         config = CN({k: v for k, v in yaml.safe_load(open(args.config, 'r')).items()})
 
         # load into dict and check 
-        if (config.gnn.model.max_hash_hops == 1) and (not config.gnn.model.use_zero_one):
+        if (config.dataset.dataloader.max_hash_hops == 1) and (not config.gnn.model.use_zero_one):
             print("WARNING: (0,1) feature knock out is not supported for 1 hop. Running with all features")
         if config.dataset.name == 'ogbl-ddi':
             config.dataset.use_feature = 0  # dataset has no features
-            assert config.gnn.train.sign_k > 0, '--sign_k must be set to > 0 i.e. 1,2 or 3 for ogbl-ddi'
+            assert config.dataset.dataloader.sign_k > 0, '--sign_k must be set to > 0 i.e. 1,2 or 3 for ogbl-ddi'
 
         print(config.gnn.model.use_text, config.dataset.name)
 
