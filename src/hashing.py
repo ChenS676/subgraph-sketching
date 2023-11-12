@@ -13,6 +13,8 @@ from datasketch import HyperLogLogPlusPlus, hyperloglog_const
 from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import add_self_loops
 from torch_geometric.loader import DataLoader
+from src.config_load import flatten_dict, dict_to_argparser
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

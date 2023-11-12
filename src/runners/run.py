@@ -28,7 +28,7 @@ from src.runners.inference import test
 from pdb import set_trace as bp 
 
 from src.config_load import cfg_data as cfg
-from src.config_load import update_cfg, cfgnode_to_dict, recursive_search_key
+from src.config_load import update_cfg, cfgnode_to_dict, recursive_search_key, flatten_cfg_node, dict_to_argparser
 
 def print_results_list(results_list):
     for idx, res in enumerate(results_list):
@@ -55,11 +55,10 @@ def run(args):
     results_list = []
     train_func = get_train_func(args)
 
-    # for rep in range(args.reps):
     set_seed(0) # set_seed(rep)
     dataset, splits, directed, eval_metric = get_data(args)
     train_loader, train_eval_loader, val_loader, test_loader = get_loaders(args, dataset, splits, directed)
-    if args.dataset.name.startswith('ogbl'):  # then this is one of the ogb link prediction datasets
+    if args.name.startswith('ogbl'):  # then this is one of the ogb link prediction datasets
         evaluator = Evaluator(name=args.dataset_name)
     else:
         evaluator = Evaluator(name='ogbl-ppa')  # this sets HR@100 as the metric
@@ -70,7 +69,7 @@ def run(args):
     val_res = test_res = best_epoch = 0
     rep = 0
     print_model_params(model)
-    for epoch in range(args.epochs):
+    for epoch in range(args.mepochs):
         t0 = time.time()
         loss = train_func(model, optimizer, train_loader, args, device)
         if (epoch + 1) % args.eval_steps == 0:
@@ -87,7 +86,7 @@ def run(args):
                             f'rep{rep}_tmp_test' + key: 100 * tmp_test_res,
                             f'rep{rep}_Test' + key: 100 * test_res, f'rep{rep}_best_epoch': best_epoch,
                             f'rep{rep}_epoch_time': time.time() - t0, 'epoch_step': epoch}
-                if args.wandb:
+                if args.wenable:
                     wandb.log(res_dic)
                 to_print = f'Epoch: {epoch:02d}, Best epoch: {best_epoch}, Loss: {loss:.4f}, Train: {100 * train_res:.2f}%, Valid: ' \
                             f'{100 * val_res:.2f}%, Test: {100 * test_res:.2f}%, epoch time: {time.time() - t0:.1f}'
@@ -96,21 +95,21 @@ def run(args):
         # TODO change when writing
         # if args.reps == args.rep_doc - 1 :
             results_list.append([test_res, val_res, train_res])
-            print_results_list(results_list)
+            # print_results_list(results_list)
     # if args.reps > 1:
         test_acc_mean, val_acc_mean, train_acc_mean = np.mean(results_list, axis=0) * 100
         test_acc_std = np.sqrt(np.var(results_list, axis=0)[0]) * 100
         val_acc_std = np.sqrt(np.var(results_list, axis=0)[1]) * 100
 
-        id = f'{args.dataset.name}-{args.model}-{args.use_text}'
+        id = f'{args.name}-{args.mname}-{args.use_text}'
         wandb_results = {'id': id, 
                          'test_mean': test_acc_mean, 'val_mean': val_acc_mean, 'train_mean': train_acc_mean,
-                            'test_acc_std': test_acc_std, 'val_acc_std': val_acc_std, 'epoch': args.epochs}
+                            'test_acc_std': test_acc_std, 'val_acc_std': val_acc_std, 'epoch': args.mepochs}
         del id
         print(wandb_results)
-    if args.wandb:
+    if args.wenable:
         wandb.log(wandb_results)
-    if args.wandb:
+    if args.wenable:
         wandb.finish()
     if args.save_model:
         path = f'{ROOT_DIR}/saved_models/{args.dataset.name}'
@@ -119,17 +118,18 @@ def run(args):
         # ToDo save excel metrics. 
         save_metrics_to_csv(wandb_results)
         print('saved.')
+
 from copy import deepcopy
 def select_model(parser, dataset, emb, device):
     args = deepcopy(parser)
-    args.model = args.gnn.model.name
+    args.model = args.mname
     if args.model == 'SEALDGCNN':
-        model = SEALDGCNN(args.train.hidden_channels, args.num_seal_layers, args.gnn.model.max_z, 
-                          args.gnn.model.sortpool_k,
-                          dataset, args.gnn.model.dynamic_train, use_feature=args.data.dataloader.use_feature,
+        model = SEALDGCNN(args.hidden_channels, args.num_seal_layers, args.max_z, 
+                          args.sortpool_k,
+                          dataset, args.dynamic_train, use_feature=args.use_feature,
                           node_embedding=emb).to(device)
     elif args.model == 'SEALSAGE':
-        model = SEALSAGE(args.hidden_channels, args.num_seal_layers, args.max_z, dataset.dataloader.num_features,
+        model = SEALSAGE(args.hidden_channels, args.num_seal_layers, args.max_z, args.num_features,
                          args.use_feature, node_embedding=emb, dropout=args.dropout).to(device)
     elif args.model == 'SEALGCN':
         model = SEALGCN(args.hidden_channels, args.num_seal_layers, args.max_z, dataset.num_features,
@@ -145,7 +145,7 @@ def select_model(parser, dataset, emb, device):
     else:
         raise NotImplementedError
     parameters = list(model.parameters())
-    if args.train.node_embedding:
+    if args.node_embedding:
         torch.nn.init.xavier_uniform_(emb.weight)
         parameters += list(emb.parameters())
     optimizer = torch.optim.Adam(params=parameters, lr=args.lr, weight_decay=args.weight_decay)

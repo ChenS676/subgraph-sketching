@@ -29,7 +29,7 @@ def test(model, evaluator, train_loader, val_loader, test_loader, args, device, 
     t0 = time.time()
     model.eval()
     print("get train predictions")
-    test_func = get_test_func(args.model)
+    test_func = get_test_func(args.mname)
     pos_train_pred, neg_train_pred, train_pred, train_true = test_func(model, train_loader, device, args, split='train')
     print("get val predictions")
     pos_val_pred, neg_val_pred, val_pred, val_true = test_func(model, val_loader, device, args, split='val')
@@ -63,7 +63,7 @@ def get_preds(model, loader, device, args, emb=None, split=None):
     for batch_count, data in enumerate(loader):
         start_time = time.time()
         # todo this should not get hit, refactor out the if statement
-        if args.model == 'BUDDY':
+        if args.mname == 'BUDDY':
             data_dev = [elem.squeeze().to(device) for elem in data]
             logits = model(*data_dev[:-1])
             y_true.append(data[-1].view(-1).cpu().to(torch.float))
@@ -196,7 +196,7 @@ def get_elph_preds(model, loader, device, args, split=None):
         if (batch_count + 1) * args.eval_batch_size > n_samples:
             break
 
-    if args.wandb:
+    if args.wenable:
         wandb.log({f"inference_{split}_epoch_time": time.time() - t0})
     pred = torch.cat(preds)
     labels = labels[:len(pred)]

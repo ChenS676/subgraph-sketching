@@ -62,7 +62,7 @@ dataset_path = {
 
 def get_loaders(args, dataset, splits, directed):
     train_data, val_data, test_data = splits['train'], splits['valid'], splits['test']
-    if args.gnn.model.name in {'ELPH', 'BUDDY'}:
+    if args.mname in {'ELPH', 'BUDDY'}:
         train_dataset, val_dataset, test_dataset = get_hashed_train_val_test_datasets(dataset, train_data, val_data,
                                                                                       test_data, args, directed)
     else:
@@ -73,19 +73,19 @@ def get_loaders(args, dataset, splits, directed):
         if args.wandb:
             wandb.log({"seal_preprocessing_time": time.time() - t0})
 
-    dl = DataLoader if args.gnn.model.name in {'ELPH', 'BUDDY'} else pygDataLoader
-    train_loader = dl(train_dataset, batch_size=args.dataset.dataloader.batch_size,
-                      shuffle=True, num_workers=args.device.num_workers)
+    dl = DataLoader if args.mname in {'ELPH', 'BUDDY'} else pygDataLoader
+    train_loader = dl(train_dataset, batch_size=args.batch_size,
+                      shuffle=True, num_workers=args.num_workers)
     # as the val and test edges are often sampled they also need to be shuffled
     # the citation2 dataset has specific negatives for each positive and so can't be shuffled
-    shuffle_val = False if args.dataset.name.startswith('ogbl-citation') else True
-    val_loader = dl(val_dataset, batch_size=args.dataset.dataloader.batch_size, 
+    shuffle_val = False if args.name.startswith('ogbl-citation') else True
+    val_loader = dl(val_dataset, batch_size=args.batch_size, 
                     shuffle=shuffle_val,
-                    num_workers=args.device.num_workers)
-    shuffle_test = False if args.dataset.name.startswith('ogbl-citation') else True
-    test_loader = dl(test_dataset, batch_size=args.dataset.dataloader.batch_size, shuffle=shuffle_test,
-                     num_workers=args.device.num_workers)
-    if (args.dataset.name == 'ogbl-citation2') and (args.gnn.model.name in {'ELPH', 'BUDDY'}):
+                    num_workers=args.num_workers)
+    shuffle_test = False if args.name.startswith('ogbl-citation') else True
+    test_loader = dl(test_dataset, batch_size=args.batch_size, shuffle=shuffle_test,
+                     num_workers=args.num_workers)
+    if (args.mname == 'ogbl-citation2') and (args.mname in {'ELPH', 'BUDDY'}):
         train_eval_loader = dl(
             make_train_eval_data(args, train_dataset, train_data.num_nodes,
                                   n_pos_samples=5000), batch_size=args.dataset.dataloader.batch_size, shuffle=False,
@@ -111,10 +111,10 @@ def get_data(args):
     # TODO add embedding for cora, arxiv, and pubmed for NLP method 
     """
     include_negatives = True
-    dataset_name = args.dataset.name
-    use_text = args.dataset.use_text
-    val_pct = args.dataset.val_pct
-    test_pct = args.dataset.test_pct
+    dataset_name = args.name
+    use_text = args.use_text
+    val_pct = args.val_pct
+    test_pct = args.test_pct
     use_lcc_flag = True
     directed = False
     eval_metric = 'hits'
@@ -129,7 +129,7 @@ def get_data(args):
         use_lcc_flag = False
         dataset = PygLinkPropPredDataset(name=dataset_name, root=path)
         if dataset_name == 'ogbl-ddi':
-            dataset.data.x = torch.ones((dataset.data.num_nodes, 1))
+            dataset.data.x = torch.ones((dataset.num_nodes, 1))
             dataset.data.edge_weight = torch.ones(dataset.data.edge_index.size(1), dtype=int)
 
     # for ogbn-arxiv and use text false

@@ -53,9 +53,9 @@ def select_embedding(args, num_nodes, device):
     :param device: cpu or cuda
     :return: Torch.nn.Embedding [n_nodes, args.hidden_channels]
     """
-    if args.train.node_embedding:
+    if args.node_embedding:
         emb = torch.nn.Embedding(num_nodes, args.hidden_channels).to(device)
-    elif args.train.pretrained_node_embedding:
+    elif args.pretrained_node_embedding:
         weight = torch.load(args.train.pretrained_node_embedding)
         emb = torch.nn.Embedding.from_pretrained(weight)
         emb.weight.requires_grad = False

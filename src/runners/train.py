@@ -16,10 +16,9 @@ from src.config_load import dict_to_argparser
 
 
 def get_train_func(args):
-    
-    if args.gnn.model.name == 'ELPH':
+    if args.mname == 'ELPH':
         return train_elph
-    elif args.gnn.model.name == 'BUDDY':
+    elif args.mname == 'BUDDY':
         train_func = train_buddy
     else:
         train_func = train
@@ -183,7 +182,7 @@ def train_elph(model, optimizer, train_loader, args, device):
     links = links[sample_indices]
     labels = labels[sample_indices]
 
-    if args.wandb:
+    if args.wenable:
         wandb.log({"train_total_batches": len(train_loader)})
     batch_processing_times = []
     loader = DataLoader(range(len(links)), args.batch_size, shuffle=True)
@@ -216,12 +215,12 @@ def train_elph(model, optimizer, train_loader, args, device):
         total_loss += loss.item() * args.batch_size
         batch_processing_times.append(time.time() - start_time)
 
-    if args.wandb:
+    if args.wenable:
         wandb.log({"train_batch_time": np.mean(batch_processing_times)})
         wandb.log({"train_epoch_time": time.time() - t0})
 
     print(f'training ran in {time.time() - t0}')
-    if args.model in {'linear', 'pmi', 'ra', 'aa', 'one_layer'}:
+    if args.mname in {'linear', 'pmi', 'ra', 'aa', 'one_layer'}:
         model.print_params()
 
     if args.log_features:
