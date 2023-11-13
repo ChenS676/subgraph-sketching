@@ -19,7 +19,7 @@ sys.path.insert(0, parent_dir)
 import unittest
 import scipy.sparse as ssp
 import numpy as np
-from src.heuristics_new import HeuristicModels
+from scripts.heuristics import HeuristicModels
 from src.data_utils.util import get_graph_config
 
 class HeuristicTests(unittest.TestCase):

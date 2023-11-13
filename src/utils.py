@@ -141,3 +141,28 @@ def str2bool(x):
         return bool(strtobool(x))
     else:
         raise ValueError(f'Unrecognised type {type(x)}')
+
+import csv 
+def save_metrics_to_csv(metrics, filename='metric.csv'):
+    """
+    Save metrics to a CSV file. If the file does not exist, it will be created.
+    If the file already exists, the metrics will be appended to the last line.
+    
+    Parameters:
+        - metrics (dict): A dictionary containing the metrics to be saved.
+        - filename (str): The name of the CSV file to save the metrics (default is 'metric.csv').
+    """
+    # Check if the file exists
+    file_exists = os.path.isfile(filename)
+    print(metrics.keys())
+    for i, k in metrics.items():
+        print(i, k)
+    with open(filename, 'a', newline='') as file:
+        writer = csv.DictWriter(file, fieldnames=metrics.keys())
+
+        # If the file doesn't exist, write the header with field names
+        if not file_exists:
+            writer.writeheader()
+
+        # Write the metrics as a new row in the CSV file
+        writer.writerow(metrics)
