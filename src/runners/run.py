@@ -12,7 +12,7 @@ from math import inf
 import sys
 import random
 
-# sys.path.insert(0, '..')
+sys.path.insert(0, '..')
 
 import numpy as np
 import torch
@@ -28,11 +28,10 @@ warnings.filterwarnings("ignore", category=SparseEfficiencyWarning)
 from src.data import get_data, get_loaders
 from src.models.elph import ELPH, BUDDY
 from src.models.seal import SEALDGCNN, SEALGCN, SEALGIN, SEALSAGE
-from src.utils import ROOT_DIR, print_model_params, select_embedding, str2bool
+from src.utils import ROOT_DIR, print_model_params, select_embedding, str2bool, save_metrics_to_csv
 from src.wandb_setup import initialise_wandb
 from src.runners.train import get_train_func
 from src.runners.inference import test
-from pdb import set_trace as bp 
 
 def print_results_list(results_list):
     for idx, res in enumerate(results_list):
@@ -109,14 +108,16 @@ def run(args):
         print(wandb_results)
         if args.wandb:
             wandb.log(wandb_results)
+        if args.save_result:
+            save_metrics_to_csv(wandb_results)
+            print('saved.')
     if args.wandb:
         wandb.finish()
     if args.save_model:
         path = f'{ROOT_DIR}/saved_models/{args.dataset_name}'
         torch.save(model.state_dict(), path)
-    if args.save_result:
-        path = f'{ROOT_DIR}/saved_results/{args.dataset_name}'
-        torch.save(model.state_dict(), path)
+
+
 
 def select_model(args, dataset, emb, device):
     

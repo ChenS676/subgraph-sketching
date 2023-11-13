@@ -203,3 +203,4 @@ class HeuristicModels():
         print(f'evaluated PPR for {len(scores)} edges')
         return torch.FloatTensor(scores), edge_reindex
 
+

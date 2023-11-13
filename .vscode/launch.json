@@ -38,7 +38,8 @@
 
 // python runners/run.py --dataset_name cora --model ELPH --use_text True --wandb_group reconstruct --wandb --reps 3 
 // python runners/run.py --dataset_name ogbn-arxiv --model ELPH --use_text True --wandb_group arxiv_elph_text reconstruct --wandb --reps 3 
-// python runners/run.py --dataset_name pubmed --model ELPH --use_text False --wandb_group pubmed_elph_text reconstruct --wandb --reps 3 
+// 
+// python runners/run.py --dataset_name pubmed --model ELPH --use_text True --wandb_group pubmed_elph_text 
 
 // python runners/run.py --dataset_name cora --model ELPH --dataset_name pubmed --model ELPH --use_text True --wandb_group reconstruct 
 // --wandb_tags baseline --wandb --reps 3
