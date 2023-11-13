@@ -7,10 +7,9 @@ from torch_geometric.datasets import Planetoid
 import torch_geometric.transforms as T
 from pdb import set_trace as bp
 # param
-from src.configs.config_load import cfg_data as cfg
-from src.configs.config_load import update_cfg
+from src.data_utils.config_load import cfg_data as cfg
+from src.data_utils.config_load import update_cfg
 # return cora dataset as pytorch geometric Data object together with 60/20/20 split, and list of cora IDs
-
 
 def get_cora_casestudy(SEED=0):
     data_X, data_Y, data_citeid, data_edges = parse_cora(cfg)
@@ -27,7 +26,6 @@ def get_cora_casestudy(SEED=0):
     dataset = Planetoid('dataset', data_name,
                         transform=T.NormalizeFeatures())
     data = dataset[0]
-    print(data)
     data.x = torch.tensor(data_X).float()
     data.edge_index = torch.tensor(data_edges).long()
     data.y = torch.tensor(data_Y).long()
@@ -62,8 +60,7 @@ def parse_cora(cfg):
     data_X = idx_features_labels[:, 1:-1].astype(np.float32)
     labels = idx_features_labels[:, -1]
     class_map = {x: i for i, x in enumerate(['Case_Based', 'Genetic_Algorithms', 'Neural_Networks',
-                                             'Probabilistic_Methods', 'Reinforcement_Learning', 'Rule_Learning',
-                                             'Theory'])}
+                                            'Probabilistic_Methods', 'Reinforcement_Learning', 'Rule_Learning', 'Theory'])}
     data_Y = np.array([class_map[l] for l in labels])
     data_citeid = idx_features_labels[:, 0]
     idx = np.array(data_citeid, dtype=np.dtype(str))
@@ -126,19 +123,21 @@ def get_raw_text_cora(cfg, use_text=False, seed=0):
         fn = line.split('\t')[1]
         pid_filename[pid] = fn
 
-    text = []
+    text, text_len  = [], []
     whole, founded = len(data_citeid), 0
     no_ab_or_ti = 0
     for pid in data_citeid:
         fn = pid_filename[pid]
         ti, ab = load_ab_ti(andrew_maccallum_path, fn)
         founded += 1
-        text.append(ti + '\n' + ab)
-
+        t = 'Title: ' + ti + '\n'+'Abstract: ' + ab
+        text.append(t)
+        text_len.append(len(t))
         if ti == '' or ab == '':
-            # print(f"no title {ti}, no abstract {ab}")
+            print(f"no title {ti}, no abstract {ab}")
             no_ab_or_ti += 1
     print(f"found {founded}/{whole} papers, {no_ab_or_ti} no ab or ti.")
+    print(f"average text length {np.asarray(text_len).mean()}")
     return data, text
 
 

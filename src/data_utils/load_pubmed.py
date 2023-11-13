@@ -9,8 +9,8 @@ from sklearn.preprocessing import normalize
 import json
 import pandas as pd
 # param
-from src.configs.config_load import cfg_data as cfg
-from src.configs.config_load import update_cfg
+from src.data_utils.config_load import cfg_data as cfg
+from src.data_utils.config_load import update_cfg
 # return pubmed dataset as pytorch geometric Data object together with 60/20/20 split, and list of pubmed IDs
 
 
@@ -148,16 +148,24 @@ def get_raw_text_pubmed(cfg, use_text=False, seed=0):
 
     AB = df_pubmed['AB'].fillna("")
     TI = df_pubmed['TI'].fillna("")
-    text = []
+    text, text_len = [], [] 
+    no_ab_or_ti = 0
+    whole, founded = len(df_pubmed), 0
     for ti, ab in zip(TI, AB):
         t = 'Title: ' + ti + '\n'+'Abstract: ' + ab
         text.append(t)
+        text_len.append(len(t))
+        if ti == '' or ab == '':
+            print(f"no title {ti}, no abstract {ab}")
+            no_ab_or_ti += 1
+    print(f"found {founded}/{whole} papers, {no_ab_or_ti} no ab or ti.")
+    print(f"average text length {np.asarray(text_len).mean()}")
     return data, text
 
 
 if __name__ == "__main__":
     cfg = update_cfg(cfg)
-    data, data_pubid = get_pubmed_casestudy(cfg.seed)
+    data, data_pubid = get_pubmed_casestudy(SEED=cfg.seed)
     data, text = get_raw_text_pubmed(cfg, use_text=True, seed=0)
     print(data)
-    print(text)
+    # print(text)

@@ -12,14 +12,17 @@
 			"program": "${file}",
 			"console": "integratedTerminal",
 			"justMyCode": false, 
-			"cwd": "/pfs/work7/workspace/scratch/cc7738-prefeature/subgraph-sketching/src",
+			"cwd":"${workspaceFolder}",
+			"env": {
+				"PYTHONPATH": "${cwd}"
+			},
 			"args": [
 				"--dataset_name",
 				"pubmed",
 				"--model",
 				"ELPH", 
 				"--use_text",	
-				"True",
+				"False",
 				"--wandb_group", 
 				"reconstruct",
 				"--wandb_tags",
