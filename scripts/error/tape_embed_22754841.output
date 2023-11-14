@@ -1,0 +1,36 @@
+
+Note: the module "jupyter/tensorflow/2023-03-24" cannot be unloaded because it was not loaded.
+
+
+Note: the module "jupyter/tensorflow/2023-10-10" cannot be unloaded because it was not loaded.
+
+Traceback (most recent call last):
+  File "/pfs/work7/workspace/scratch/cc7738-prefeature/subgraph-sketching_chen/src/runners/run.py", line 19, in <module>
+    from ogb.linkproppred import Evaluator
+  File "/home/kit/aifb/cc7738/anaconda3/envs/ss/lib/python3.9/site-packages/ogb/linkproppred/__init__.py", line 1, in <module>
+    from .evaluate import Evaluator
+  File "/home/kit/aifb/cc7738/anaconda3/envs/ss/lib/python3.9/site-packages/ogb/linkproppred/evaluate.py", line 5, in <module>
+    from sklearn.metrics import roc_auc_score
+  File "/home/kit/aifb/cc7738/anaconda3/envs/ss/lib/python3.9/site-packages/sklearn/__init__.py", line 83, in <module>
+    from .base import clone
+  File "/home/kit/aifb/cc7738/anaconda3/envs/ss/lib/python3.9/site-packages/sklearn/base.py", line 19, in <module>
+    from .utils import _IS_32BIT
+  File "/home/kit/aifb/cc7738/anaconda3/envs/ss/lib/python3.9/site-packages/sklearn/utils/__init__.py", line 22, in <module>
+    from ._param_validation import Interval, validate_params
+  File "/home/kit/aifb/cc7738/anaconda3/envs/ss/lib/python3.9/site-packages/sklearn/utils/_param_validation.py", line 15, in <module>
+    from .validation import _is_arraylike_not_scalar
+  File "/home/kit/aifb/cc7738/anaconda3/envs/ss/lib/python3.9/site-packages/sklearn/utils/validation.py", line 28, in <module>
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+  File "/home/kit/aifb/cc7738/anaconda3/envs/ss/lib/python3.9/site-packages/sklearn/utils/_array_api.py", line 9, in <module>
+    from .fixes import parse_version
+  File "/home/kit/aifb/cc7738/anaconda3/envs/ss/lib/python3.9/site-packages/sklearn/utils/fixes.py", line 18, in <module>
+    import scipy.stats
+  File "/home/kit/aifb/cc7738/anaconda3/envs/ss/lib/python3.9/site-packages/scipy/stats/__init__.py", line 608, in <module>
+    from ._stats_py import *
+  File "/home/kit/aifb/cc7738/anaconda3/envs/ss/lib/python3.9/site-packages/scipy/stats/_stats_py.py", line 39, in <module>
+    from scipy.spatial.distance import cdist
+  File "/home/kit/aifb/cc7738/anaconda3/envs/ss/lib/python3.9/site-packages/scipy/spatial/__init__.py", line 110, in <module>
+    from ._kdtree import *
+  File "/home/kit/aifb/cc7738/anaconda3/envs/ss/lib/python3.9/site-packages/scipy/spatial/_kdtree.py", line 4, in <module>
+    from ._ckdtree import cKDTree, cKDTreeNode
+ImportError: /lib64/libstdc++.so.6: version `GLIBCXX_3.4.29' not found (required by /home/kit/aifb/cc7738/anaconda3/envs/ss/lib/python3.9/site-packages/scipy/spatial/_ckdtree.cpython-39-x86_64-linux-gnu.so)
