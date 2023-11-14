@@ -25,11 +25,11 @@ import wandb
 from scipy.sparse import SparseEfficiencyWarning
 warnings.filterwarnings("ignore", category=SparseEfficiencyWarning)
 
-from src.data import get_data, get_loaders
+from src.data_utils.data import get_data, get_loaders
 from src.gnns.elph import ELPH, BUDDY
 from src.gnns.seal import SEALDGCNN, SEALGCN, SEALGIN, SEALSAGE
-from src.utils import ROOT_DIR, print_model_params, select_embedding, str2bool, save_metrics_to_csv
-from src.wandb_setup import initialise_wandb
+from src.utilities.utils import ROOT_DIR, print_model_params, select_embedding, str2bool, save_metrics_to_csv
+from src.utilities.wandb_setup import initialise_wandb
 from src.runners.train import get_train_func
 from src.runners.inference import test
 from pdb import set_trace as bp

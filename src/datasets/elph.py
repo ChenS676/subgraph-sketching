@@ -14,9 +14,9 @@ import torch_sparse
 from torch_geometric.nn.conv.gcn_conv import gcn_norm
 import os, sys
 
-from src.heuristics import RA
-from src.utils import ROOT_DIR, get_src_dst_degree, get_pos_neg_edges, get_same_source_negs
-from src.hashing import ElphHashes
+from src.heuristics.heuristics import RA
+from src.utilities.utils import ROOT_DIR, get_src_dst_degree, get_pos_neg_edges, get_same_source_negs
+from src.datasets.hashing import ElphHashes
 
 class HashDataset(Dataset):
     """

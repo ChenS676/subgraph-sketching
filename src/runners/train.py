@@ -11,7 +11,7 @@ from tqdm import tqdm
 import wandb
 import numpy as np
 from pdb import set_trace as bp 
-from src.utils import get_num_samples
+from src.utilities.utils import get_num_samples
 
 
 def get_train_func(args):

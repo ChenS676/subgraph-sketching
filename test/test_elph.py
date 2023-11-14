@@ -12,8 +12,8 @@ from src.runners.train import train_elph
 from src.runners.inference import get_elph_preds
 from src.runners.run import run
 from test_params import OPT, setup_seed
-from src.models.elph import ELPH, LinkPredictor
-from src.utils import ROOT_DIR, select_embedding
+from src.gnns.elph import ELPH, LinkPredictor
+from src.utilities.utils import ROOT_DIR, select_embedding
 from src.datasets.elph import HashDataset
 
 

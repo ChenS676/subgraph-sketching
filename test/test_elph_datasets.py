@@ -13,8 +13,8 @@ import scipy.sparse as ssp
 
 from src.datasets.elph import HashDataset, make_train_eval_data
 from test_params import OPT
-from src.utils import ROOT_DIR
-from src.hashing import ElphHashes
+from src.utilities.utils import ROOT_DIR
+from src.datasets.hashing import ElphHashes
 
 
 class ELPHDatasetTests(unittest.TestCase):

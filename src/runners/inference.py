@@ -10,8 +10,8 @@ from tqdm import tqdm
 import wandb
 import numpy as np
 
-from src.evaluation import evaluate_auc, evaluate_hits, evaluate_mrr
-from src.utils import get_num_samples
+from src.runners.evaluation import evaluate_auc, evaluate_hits, evaluate_mrr
+from src.utilities.utils import get_num_samples
 
 
 def get_test_func(model_str):

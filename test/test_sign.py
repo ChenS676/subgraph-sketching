@@ -11,7 +11,7 @@ from torch_geometric.data import Data
 from torch_geometric.utils.random import barabasi_albert_graph
 import scipy.sparse as ssp
 
-from src.models.gnn import SIGNEmbedding, SIGN
+from src.gnns.gnn import SIGNEmbedding, SIGN
 from test_params import OPT
 from src.datasets.elph import HashDataset
 

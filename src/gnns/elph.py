@@ -13,7 +13,7 @@ from torch_geometric.nn.conv.gcn_conv import gcn_norm
 from torch_geometric.utils import add_self_loops
 
 from src.gnns.gnn import SIGN, SIGNEmbedding
-from src.hashing import ElphHashes
+from src.datasets.hashing import ElphHashes
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARN)

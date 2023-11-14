@@ -15,9 +15,9 @@ from src.runners.inference import get_buddy_preds
 from src.runners.run import run
 from src.runners.train import train_buddy
 from test_params import OPT, setup_seed
-from src.models.elph import BUDDY
+from src.gnns.elph import ELPH, BUDDY
 from src.datasets.elph import get_src_dst_degree
-from src.data import get_data, get_hashed_train_val_test_datasets
+from src.data_utils.data import get_data, get_hashed_train_val_test_datasets
 
 class BUDDYTests(unittest.TestCase):
     def setUp(self):

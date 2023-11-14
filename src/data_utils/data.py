@@ -17,15 +17,15 @@ from torch_geometric.utils import (add_self_loops, negative_sampling,
 from torch_geometric.loader import DataLoader as pygDataLoader
 import wandb
 
-from src.utils import ROOT_DIR, get_same_source_negs
-from src.lcc import get_largest_connected_component, remap_edges, get_node_mapper
+from src.utilities.utils import ROOT_DIR, get_same_source_negs
+from src.datasets.lcc import get_largest_connected_component, remap_edges, get_node_mapper
 from src.datasets.seal import get_train_val_test_datasets
 from src.datasets.elph import get_hashed_train_val_test_datasets, make_train_eval_data
 import json, sys
 from pdb import set_trace as bp
 from yacs.config import CfgNode
-from .data_utils.load import cfg
-from .data_utils.config_load import update_cfg
+from .load import cfg
+from .config_load import update_cfg
 import os.path as osp
 from typing import Any, Callable, List, Optional
 

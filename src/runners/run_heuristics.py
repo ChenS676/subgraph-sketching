@@ -16,10 +16,10 @@ import wandb
 import numpy as np
 import os, sys
 sys.path.insert(0, '..')
-from src.evaluation import evaluate_auc, evaluate_mrr, evaluate_hits
-from src.data import get_data
+from src.runners.evaluation import evaluate_auc, evaluate_mrr, evaluate_hits
+from src.data_utils.data import get_data
 
-from src.utils import DEFAULT_DIC, get_pos_neg_edges
+from src.utilities.utils import DEFAULT_DIC, get_pos_neg_edges
 
 """
 A selection of heuristic methods (Personalized PageRank, Adamic Adar and Common Neighbours) for link prediction
