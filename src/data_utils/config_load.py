@@ -2,41 +2,6 @@ import os
 import argparse
 from yacs.config import CfgNode as CN
 # adopted from torch_geometric.graphgym.config
-
-def set_data_cfg(cfg):
-
-	# ------------------------------------------------------------------------ #
-	# Basic options
-	# ------------------------------------------------------------------------ #
-	# Cuda device number, used for machine with multiple gpus
-	cfg.device = 0
-	# Whether fix the running seed to remove randomness
-	cfg.seed = 1
-
-	cfg.dataset = CN()
-	cfg.dataset.name = 'cora'	
-	# root of dataset 
-
-	cfg.dataset.cora = CN()
-	cfg.dataset.cora.root = '/pfs/work7/workspace/scratch/cc7738-prefeature/TAPE' 
-	cfg.dataset.cora.original = cfg.dataset.cora.root + '/dataset/cora_orig/cora'
-	cfg.dataset.cora.papers =  cfg.dataset.cora.root + '/dataset/cora_orig/mccallum/cora/papers'
-	cfg.dataset.cora.extractions =  cfg.dataset.cora.root + '/dataset/cora_andrew_mccallum/extractions/'
-	cfg.dataset.cora.lm_model_name = 'microsoft/deberta-base'
-	# ------------------------------------------------------------------------ #
-	cfg.dataset.pubmed = CN()
-	cfg.dataset.pubmed.root = '/pfs/work7/workspace/scratch/cc7738-prefeature/TAPE' 
-	cfg.dataset.pubmed.original = cfg.dataset.pubmed.root  + '/dataset/PubMed_orig/data/'
-	cfg.dataset.pubmed.abs_ti = cfg.dataset.pubmed.root  + '/dataset/PubMed_orig/pubmed.json' 
-
-	cfg.dataset.arxiv = CN()
-	cfg.dataset.arxiv.root = '/pfs/work7/workspace/scratch/cc7738-prefeature/TAPE'
-	cfg.dataset.arxiv.abs_ti = cfg.dataset.arxiv.root + '/dataset/ogbn_arxiv_orig/titleabs.tsv'
-
-	cfg.dataset.feature_type = 'TA'
-	return cfg
-
-
 # Principle means that if an option is defined in a YACS config object,
 # then your program should set that configuration option using cfg.merge_from_list(opts) and not by defining,
 # for example, --train-scales as a command line argument that is then used to set cfg.TRAIN.SCALES.
@@ -69,7 +34,3 @@ def update_cfg(cfg, args_str=None):
     return cfg
 
 
-"""
-    Global variable
-"""
-cfg_data = set_data_cfg(CN())

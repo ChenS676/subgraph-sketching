@@ -26,12 +26,13 @@ from scipy.sparse import SparseEfficiencyWarning
 warnings.filterwarnings("ignore", category=SparseEfficiencyWarning)
 
 from src.data import get_data, get_loaders
-from src.models.elph import ELPH, BUDDY
-from src.models.seal import SEALDGCNN, SEALGCN, SEALGIN, SEALSAGE
+from src.gnns.elph import ELPH, BUDDY
+from src.gnns.seal import SEALDGCNN, SEALGCN, SEALGIN, SEALSAGE
 from src.utils import ROOT_DIR, print_model_params, select_embedding, str2bool, save_metrics_to_csv
 from src.wandb_setup import initialise_wandb
 from src.runners.train import get_train_func
 from src.runners.inference import test
+from pdb import set_trace as bp
 
 def print_results_list(results_list):
     for idx, res in enumerate(results_list):
@@ -95,10 +96,11 @@ def run(args):
                                f'{100 * val_res:.2f}%, Test: {100 * test_res:.2f}%, epoch time: {time.time() - t0:.1f}'
                     print(key)
                     print(to_print)
-        if args.reps > 1:
-            results_list.append([test_res, val_res, train_res])
-            print_results_list(results_list)
-    if args.reps > 1:
+        # save each rep
+        results_list.append([test_res, val_res, train_res])
+        print_results_list(results_list)
+        
+    if rep == args.reps -1:
         test_acc_mean, val_acc_mean, train_acc_mean = np.mean(results_list, axis=0) * 100
         test_acc_std = np.sqrt(np.var(results_list, axis=0)[0]) * 100
         val_acc_std = np.sqrt(np.var(results_list, axis=0)[1]) * 100
@@ -108,9 +110,9 @@ def run(args):
         print(wandb_results)
         if args.wandb:
             wandb.log(wandb_results)
-        if args.save_result:
-            save_metrics_to_csv(wandb_results)
-            print('saved.')
+    if args.save_result:
+        save_metrics_to_csv(wandb_results)
+        print('saved.')
     if args.wandb:
         wandb.finish()
     if args.save_model:
@@ -273,6 +275,8 @@ if __name__ == '__main__':
     parser.add_argument('--wandb_notes', nargs='+', help='notes to add to wandb')
     parser.add_argument('--wandb_tags', type=str, help='tags to add to wandb')
     parser.add_argument('--log_features', action='store_true', help="log feature importance")
+    parser.add_argument('--save_result', action='store_true', help="save result to csv")
+    
     args = parser.parse_args()
     if (args.max_hash_hops == 1) and (not args.use_zero_one):
         print("WARNING: (0,1) feature knock out is not supported for 1 hop. Running with all features")

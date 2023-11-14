@@ -24,7 +24,7 @@ from src.datasets.elph import get_hashed_train_val_test_datasets, make_train_eva
 import json, sys
 from pdb import set_trace as bp
 from yacs.config import CfgNode
-from .data_utils.config_load import cfg_data as cfg
+from .data_utils.load import cfg
 from .data_utils.config_load import update_cfg
 import os.path as osp
 from typing import Any, Callable, List, Optional

@@ -6,9 +6,8 @@ import pandas as pd
 from torch_geometric.datasets import Planetoid
 import torch_geometric.transforms as T
 from pdb import set_trace as bp
-# param
-from src.data_utils.config_load import cfg_data as cfg
-from src.data_utils.config_load import update_cfg
+from src.data_utils.load import cfg
+
 # return cora dataset as pytorch geometric Data object together with 60/20/20 split, and list of cora IDs
 
 def get_cora_casestudy(SEED=0):
@@ -134,7 +133,7 @@ def get_raw_text_cora(cfg, use_text=False, seed=0):
         text.append(t)
         text_len.append(len(t))
         if ti == '' or ab == '':
-            print(f"no title {ti}, no abstract {ab}")
+            # print(f"no title {ti}, no abstract {ab}")
             no_ab_or_ti += 1
     print(f"found {founded}/{whole} papers, {no_ab_or_ti} no ab or ti.")
     print(f"average text length {np.asarray(text_len).mean()}")
@@ -172,7 +171,6 @@ def run(cfg):
 
 
 if __name__ == '__main__':
-    cfg = update_cfg(cfg)
     data, data_citeid = get_cora_casestudy(cfg.seed)
     data, text = get_raw_text_cora(cfg, use_text=True)
     data, text = get_raw_text_cora_from_rpo(cfg, use_text=False, seed=0)
