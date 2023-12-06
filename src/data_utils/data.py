@@ -271,12 +271,17 @@ def use_lcc(dataset):
         x=x_new,
         edge_index=torch.LongTensor(edges),
         y=y_new,
+        num_nodes=y_new.size()[0],
         train_mask=torch.zeros(y_new.size()[0], dtype=torch.bool),
         test_mask=torch.zeros(y_new.size()[0], dtype=torch.bool),
-        val_mask=torch.zeros(y_new.size()[0], dtype=torch.bool)
+        val_mask=torch.zeros(y_new.size()[0], dtype=torch.bool),
+        node_attrs=x_new, 
+        edge_attrs = None, 
+        graph_attrs = None
     )
     # original dataset._data = data
     dataset._data = data
+    
     return dataset
 
 
